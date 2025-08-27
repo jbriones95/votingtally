@@ -30,19 +30,8 @@
         <div id="ideas"></div>
     </div>
     <script>
-        // Initial sample ideas
-        let ideas = [
-            {
-                text: "Safe bike routes to schools, groceries, and work; not just recreational greenways",
-                agree: 91,
-                disagree: 9
-            },
-            {
-                text: "Bowling Green should not have any bike lanes unless they are warranted",
-                agree: 12,
-                disagree: 88
-            }
-        ];
+        const API_BASE = "https://votingtally.onrender.com/api";
+        let ideas = [];
 
         // Render ideas
         function renderIdeas() {
@@ -63,33 +52,36 @@
             });
         }
 
-        // Voting logic (simple percentage simulation)
-        function vote(idx, type) {
-            let total = ideas[idx].agree + ideas[idx].disagree;
-            if (type === 'agree') {
-                ideas[idx].agree += 1;
-            } else {
-                ideas[idx].disagree += 1;
-            }
-            total += 1;
-            // Normalize to percentage
-            ideas[idx].agree = Math.round((ideas[idx].agree / total) * 100);
-            ideas[idx].disagree = 100 - ideas[idx].agree;
+        async function fetchIdeas() {
+            const res = await fetch(`${API_BASE}/ideas`);
+            ideas = await res.json();
             renderIdeas();
         }
 
-        // Add new idea
-        document.getElementById('newIdeaForm').onsubmit = function(e) {
+        async function vote(idx, type) {
+            const res = await fetch(`${API_BASE}/vote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idx, type })
+            });
+            fetchIdeas();
+        }
+
+        document.getElementById('newIdeaForm').onsubmit = async function(e) {
             e.preventDefault();
             const text = document.getElementById('ideaText').value.trim();
             if (text) {
-                ideas.push({ text, agree: 0, disagree: 0 });
+                await fetch(`${API_BASE}/ideas`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
                 document.getElementById('ideaText').value = '';
-                renderIdeas();
+                fetchIdeas();
             }
         };
 
-        renderIdeas();
+        fetchIdeas();
     </script>
 </body>
 </html>
