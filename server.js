@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -52,6 +53,11 @@ app.post('/api/vote', (req, res) => {
     ideas[idx].agree = Math.round((ideas[idx].agree / total) * 100);
     ideas[idx].disagree = 100 - ideas[idx].agree;
     res.json({ agree: ideas[idx].agree, disagree: ideas[idx].disagree });
+});
+
+// Serve index.html at root
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
