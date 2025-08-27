@@ -54,4 +54,5 @@ app.post('/api/vote', (req, res) => {
     res.json({ agree: ideas[idx].agree, disagree: ideas[idx].disagree });
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
