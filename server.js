@@ -71,16 +71,14 @@ app.post('/api/resetPersonal', (req, res) => {
     const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
     ideas.forEach(idea => {
         if (idea.votes[ip]) {
-            // Remove user's vote
-            const prevType = idea.votes[ip];
             delete idea.votes[ip];
-            // Recalculate tallies
-            let agreeVotes = Object.values(idea.votes).filter(v => v === 'agree').length;
-            let disagreeVotes = Object.values(idea.votes).filter(v => v === 'disagree').length;
-            let total = agreeVotes + disagreeVotes;
-            idea.agree = total ? Math.round((agreeVotes / total) * 100) : 0;
-            idea.disagree = total ? 100 - idea.agree : 0;
         }
+        // Recalculate tallies for all ideas, regardless of whether the user voted
+        const agreeVotes = Object.values(idea.votes).filter(v => v === 'agree').length;
+        const disagreeVotes = Object.values(idea.votes).filter(v => v === 'disagree').length;
+        const total = agreeVotes + disagreeVotes;
+        idea.agree = total ? Math.round((agreeVotes / total) * 100) : 0;
+        idea.disagree = total ? 100 - idea.agree : 0;
     });
     res.json({ success: true });
 });
