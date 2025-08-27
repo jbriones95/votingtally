@@ -56,6 +56,16 @@ app.post('/api/vote', (req, res) => {
     res.json({ agree: ideas[idx].agree, disagree: ideas[idx].disagree });
 });
 
+// Reset all votes and tallies
+app.post('/api/reset', (req, res) => {
+    ideas.forEach(idea => {
+        idea.agree = 0;
+        idea.disagree = 0;
+        idea.votes = {};
+    });
+    res.json({ success: true });
+});
+
 // Serve index.html at root
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
