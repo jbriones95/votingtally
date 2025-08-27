@@ -9,29 +9,31 @@ app.use(express.static(__dirname));
 let ideas = [
     {
         text: "Safe bike routes to schools, groceries, and work; not just recreational greenways",
-        agree: 91,
-        disagree: 9,
         votes: {} // { ip: 'agree' or 'disagree' }
     },
     {
         text: "Littleton should not have any bike lanes unless they are warranted",
-        agree: 12,
-        disagree: 88,
         votes: {}
     }
 ];
 
 // Get all ideas
 app.get('/api/ideas', (req, res) => {
-    // Don't send votes object to frontend
-    res.json(ideas.map(({ text, agree, disagree }) => ({ text, agree, disagree })));
+    res.json(ideas.map(({ text, votes }) => {
+        const agreeVotes = Object.values(votes).filter(v => v === 'agree').length;
+        const disagreeVotes = Object.values(votes).filter(v => v === 'disagree').length;
+        const total = agreeVotes + disagreeVotes;
+        const agree = total ? Math.round((agreeVotes / total) * 100) : 0;
+        const disagree = total ? 100 - agree : 0;
+        return { text, agree, disagree };
+    }));
 });
 
 // Add a new idea
 app.post('/api/ideas', (req, res) => {
     const { text } = req.body;
     if (!text || typeof text !== 'string') return res.status(400).send('Invalid idea');
-    ideas.push({ text, agree: 0, disagree: 0, votes: {} });
+    ideas.push({ text, votes: {} });
     res.json({ success: true });
 });
 
@@ -45,40 +47,29 @@ app.post('/api/vote', (req, res) => {
     if (!ideas[idx]) return res.status(404).send('Idea not found');
     if (ideas[idx].votes[ip]) return res.status(403).send('Already voted');
     ideas[idx].votes[ip] = type;
-    // Tally vote
-    let total = ideas[idx].agree + ideas[idx].disagree;
-    if (type === 'agree') ideas[idx].agree += 1;
-    else ideas[idx].disagree += 1;
-    total += 1;
-    // Normalize to percentage
-    ideas[idx].agree = Math.round((ideas[idx].agree / total) * 100);
-    ideas[idx].disagree = 100 - ideas[idx].agree;
-    res.json({ agree: ideas[idx].agree, disagree: ideas[idx].disagree });
+    // Calculate percentages
+    const agreeVotes = Object.values(ideas[idx].votes).filter(v => v === 'agree').length;
+    const disagreeVotes = Object.values(ideas[idx].votes).filter(v => v === 'disagree').length;
+    const total = agreeVotes + disagreeVotes;
+    const agree = total ? Math.round((agreeVotes / total) * 100) : 0;
+    const disagree = total ? 100 - agree : 0;
+    res.json({ agree, disagree });
 });
 
 // Reset all votes and tallies
 app.post('/api/reset', (req, res) => {
     ideas.forEach(idea => {
-        idea.agree = 0;
-        idea.disagree = 0;
         idea.votes = {};
     });
     res.json({ success: true });
 });
 
-// Reset personal votes
 app.post('/api/resetPersonal', (req, res) => {
     const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
     ideas.forEach(idea => {
         if (idea.votes[ip]) {
             delete idea.votes[ip];
         }
-        // Recalculate tallies for all ideas, regardless of whether the user voted
-        const agreeVotes = Object.values(idea.votes).filter(v => v === 'agree').length;
-        const disagreeVotes = Object.values(idea.votes).filter(v => v === 'disagree').length;
-        const total = agreeVotes + disagreeVotes;
-        idea.agree = total ? Math.round((agreeVotes / total) * 100) : 0;
-        idea.disagree = total ? 100 - idea.agree : 0;
     });
     res.json({ success: true });
 });
