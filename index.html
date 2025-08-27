@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Community Voting Tally</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; background: #f7f7f7; }
+        h1 { color: #2c3e50; }
+        .idea-form, .idea-list { background: #fff; padding: 1em; border-radius: 8px; margin-bottom: 2em; box-shadow: 0 2px 8px #eee; }
+        .idea { border-bottom: 1px solid #eee; padding: 1em 0; }
+        .idea:last-child { border-bottom: none; }
+        .votes { font-weight: bold; color: #27ae60; }
+        button { margin-left: 1em; }
+        .agree { color: #27ae60; }
+        .disagree { color: #c0392b; }
+    </style>
+</head>
+<body>
+    <h1>Community Ideas & Voting</h1>
+    <div class="idea-form">
+        <h2>Propose a New Idea</h2>
+        <form id="newIdeaForm">
+            <input type="text" id="ideaText" placeholder="Your idea for the community..." required style="width:70%;">
+            <button type="submit">Submit Idea</button>
+        </form>
+    </div>
+    <div class="idea-list">
+        <h2>Ideas & Voting</h2>
+        <div id="ideas"></div>
+    </div>
+    <script>
+        // Initial sample ideas
+        let ideas = [
+            {
+                text: "Safe bike routes to schools, groceries, and work; not just recreational greenways",
+                agree: 91,
+                disagree: 9
+            },
+            {
+                text: "Bowling Green should not have any bike lanes unless they are warranted",
+                agree: 12,
+                disagree: 88
+            }
+        ];
+
+        // Render ideas
+        function renderIdeas() {
+            const ideasDiv = document.getElementById('ideas');
+            ideasDiv.innerHTML = '';
+            ideas.forEach((idea, idx) => {
+                ideasDiv.innerHTML += `
+                    <div class="idea">
+                        <div>${idea.text}</div>
+                        <div>
+                            <span class="agree">Agree: <span class="votes">${idea.agree}%</span></span>
+                            <span class="disagree">Disagree: <span class="votes">${idea.disagree}%</span></span>
+                            <button onclick="vote(${idx}, 'agree')">Agree</button>
+                            <button onclick="vote(${idx}, 'disagree')">Disagree</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Voting logic (simple percentage simulation)
+        function vote(idx, type) {
+            let total = ideas[idx].agree + ideas[idx].disagree;
+            if (type === 'agree') {
+                ideas[idx].agree += 1;
+            } else {
+                ideas[idx].disagree += 1;
+            }
+            total += 1;
+            // Normalize to percentage
+            ideas[idx].agree = Math.round((ideas[idx].agree / total) * 100);
+            ideas[idx].disagree = 100 - ideas[idx].agree;
+            renderIdeas();
+        }
+
+        // Add new idea
+        document.getElementById('newIdeaForm').onsubmit = function(e) {
+            e.preventDefault();
+            const text = document.getElementById('ideaText').value.trim();
+            if (text) {
+                ideas.push({ text, agree: 0, disagree: 0 });
+                document.getElementById('ideaText').value = '';
+                renderIdeas();
+            }
+        };
+
+        renderIdeas();
+    </script>
+</body>
+</html>
