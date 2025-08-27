@@ -1,35 +1,94 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 2em;
-    background: #f7f7f7;
+    font-family: 'Roboto', Arial, sans-serif;
+    margin: 0;
+    background: #f5f5f5;
 }
-h1 {
-    color: #2c3e50;
+
+h1, h2 {
+    color: #263238;
+    font-weight: 500;
+    margin-bottom: 1em;
 }
+
 .idea-form, .idea-list {
     background: #fff;
-    padding: 1em;
-    border-radius: 8px;
-    margin-bottom: 2em;
-    box-shadow: 0 2px 8px #eee;
+    padding: 2em 1.5em;
+    border-radius: 12px;
+    margin: 2em auto;
+    max-width: 600px;
+    box-shadow: 0 4px 16px rgba(44, 62, 80, 0.08);
 }
+
 .idea {
-    border-bottom: 1px solid #eee;
-    padding: 1em 0;
+    border-bottom: 1px solid #ececec;
+    padding: 1.5em 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
 }
+
 .idea:last-child {
     border-bottom: none;
 }
+
 .votes {
-    font-weight: bold;
-    color: #27ae60;
+    font-weight: 500;
+    color: #1976d2;
 }
+
 button {
-    margin-left: 1em;
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    padding: 0.5em 1.5em;
+    font-size: 1em;
+    cursor: pointer;
+    margin-left: 0.5em;
+    box-shadow: 0 2px 4px rgba(25, 118, 210, 0.08);
+    transition: background 0.2s, box-shadow 0.2s;
 }
+
+button:hover, button:focus {
+    background: #1565c0;
+    box-shadow: 0 4px 8px rgba(25, 118, 210, 0.16);
+    outline: none;
+}
+
+input[type="text"] {
+    border: 1px solid #bdbdbd;
+    border-radius: 24px;
+    padding: 0.5em 1em;
+    font-size: 1em;
+    width: 70%;
+    margin-right: 1em;
+    transition: border 0.2s;
+}
+
+input[type="text"]:focus {
+    border: 1.5px solid #1976d2;
+    outline: none;
+}
+
 .agree {
-    color: #27ae60;
+    color: #388e3c;
+    font-weight: 500;
+    margin-right: 1em;
 }
+
 .disagree {
-    color: #c0392b;
+    color: #d32f2f;
+    font-weight: 500;
+    margin-right: 1em;
+}
+
+@media (max-width: 700px) {
+    .idea-form, .idea-list {
+        max-width: 98vw;
+        padding: 1em 0.5em;
+    }
+    input[type="text"] {
+        width: 100%;
+        margin-right: 0;
+    }
 }
