@@ -32,11 +32,10 @@
             ideasDiv.innerHTML += `
                 <div class="idea">
                     <div>${idea.text}</div>
-                    <div>
-                        <span class="agree">Agree: <span class="votes">${idea.agree}%</span></span>
-                        <span class="disagree">Disagree: <span class="votes">${idea.disagree}%</span></span>
-                        <button onclick="vote(${idx}, 'agree')">Agree</button>
-                        <button onclick="vote(${idx}, 'disagree')">Disagree</button>
+                    <div class="idea-votes-row">
+                        <span class="idea-vote agree"><span class="icon">👍</span> ${idea.agreeVotes}</span>
+                        <span class="idea-vote disagree"><span class="icon">👎</span> ${idea.disagreeVotes}</span>
+                        <span class="idea-vote pass">| PASS ${idea.passVotes}</span>
                     </div>
                 </div>
             `;
