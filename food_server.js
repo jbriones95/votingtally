@@ -76,21 +76,7 @@ function computeStats(votesObj) {
 
 // Routes for food suggestions
 app.get('/api/food', (req, res) => {
-  const out = foods.map(i => {
-    const s = computeStats(i.votes);
-    return {
-      text: i.text,
-      agree: s.agreePct,
-      disagree: s.disagreePct,
-      agreeCount: s.agreeCount,
-      disagreeCount: s.disagreeCount,
-      passCount: s.passCount,
-      total: s.total
-    };
-  });
-  // sort by total votes (descending) so items with more activity appear first
-  out.sort((a, b) => (b.total || 0) - (a.total || 0));
-  res.json(out);
+  res.json(foods);
 });
 
 app.post('/api/food', (req, res) => {
