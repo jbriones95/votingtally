@@ -30,7 +30,17 @@ const BAD_WORDS = [
   'yob', 'slag', 'tart', 'muppet', 'gitface', 'prat', 'jerkwad', 'peabrain', 'lunkhead',
   'meathead', 'chump', 'punk', 'punkass', 'screwup', 'weirdo', 'freak', 'geek', 'nerd',
   'geez', 'frigger', 'crud', 'bozo', 'goof', 'goofball', 'clown', 'clownshoe', 'klutz',
-  'schmuck', 'putz', 'badword1', 'badword2', 'badword3', 'badword4', 'badword5'
+  'schmuck', 'putz',   'jerkoff', 'arsehole', 'dipwad', 'dipstick', 'blowhard', 'blowhole', 'buttmunch', 'buttface', 'dirtbag',
+  'scrote', 'scumbucket', 'knucklehead', 'meatball', 'snot', 'snotface', 'snotball', 'gasbagger', 'crudface',
+  'crudmuffin', 'slimeball', 'slimebucket', 'trashbag', 'trashface', 'smut', 'smutface', 'dillweed',
+  'dingus', 'dingbat', 'wuss', 'wussbag', 'wussface', 'fugly', 'nutter', 'nutjob', 'nutcase', 'nutbrain',
+  'wacko', 'wackjob', 'lowlife', 'lowbrain', 'lowbrow', 'halfbrain', 'halfhead', 'hacksaw', 'hackjob',
+  'deadbeat', 'dropkick', 'airhead', 'flathead', 'squarehead', 'pottymouth', 'mouthbreather', 'buttkicker',
+  'bootlicker', 'bootlick', 'backstabber', 'twoface', 'cheater', 'cheapskate', 'chisel', 'fibber', 'fibhead',
+  'fibbag', 'goober', 'goon', 'gomer', 'grinch', 'grifter', 'grouch', 'harpy', 'hoebag', 'hogwash', 'lamebrain',
+  'lamer', 'layabout', 'lazybones', 'lech', 'louse', 'meanie', 'menace', 'minger', 'miscreant', 'mouthpiece',
+  'nincompoop', 'nincanpoop', 'ninny', 'noob', 'oaf', 'ogre', 'peon', 'perv', 'pervert', 'pesky', 'phoney',
+  'phony', 'poser', 'puke', 'punkface', 'reject', 'rubbish', 'sap', 'scam', 'scammer', 'scrub', 'sham', 'shambles'
 ];
 
 
