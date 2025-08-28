@@ -134,7 +134,7 @@ app.post('/api/food/resetPersonal', (req, res) => {
   return res.json({ success: true });
 });
 
-// Serve food page at /food and /food.html so embeds can use either path
+// Serve /food and /food.html so embeds can use either path
 app.get(['/food', '/food.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'food.html'));
 });
