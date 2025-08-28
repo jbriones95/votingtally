@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Littleton Eateries — Suggestions & Voting</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* small page-specific tweaks */
+    .container { max-width: 800px; margin: 2.5rem auto; padding: 0 1rem; }
+    .header { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+    .header h1 { margin:0; font-size:1.6rem; }
+    .food-form { margin:1.25rem 0 1.5rem; display:flex; gap:0.75rem; align-items:center; }
+    .food-form input { flex:1; border-radius:24px; padding:0.6rem 1rem; border:1px solid #ccc; }
+    .food-list { margin-top:1rem; }
+    .hint { color:#2e7d32; cursor:pointer; background:transparent; border:none; padding:0; font-weight:500; }
+    .status { margin-top:0.5rem; color:#d32f2f; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Littleton Eateries — Suggestions & Voting</h1>
+      <div>
+        <button id="resetPersonalFoodBtn" class="hint">Reset My Votes</button>
+      </div>
+    </div>
+
+    <section class="food-form" aria-label="Propose a new eatery idea">
+      <form id="newFoodForm" style="display:flex; width:100%; gap:.75rem;">
+        <input id="foodText" name="foodText" type="text" placeholder="Suggest a new food option, event, or vendor..." required />
+        <button type="submit">Submit</button>
+      </form>
+    </section>
+
+    <section id="foods" class="food-list" aria-live="polite"></section>
+    <div id="status" class="status" role="status" aria-atomic="true"></div>
+  </div>
+
+  <script>
+    // Use relative paths so this page works when served from the food server root or same origin.
+    const API_SUGGEST = "/api/food";
+    const API_VOTE = "/api/food/vote";
+    const API_RESET_PERSONAL = "/api/food/resetPersonal";
+
+    const foodsEl = document.getElementById('foods');
+    const statusEl = document.getElementById('status');
+
+    function showStatus(msg, color = '#d32f2f') {
+      statusEl.textContent = msg || '';
+      statusEl.style.color = color;
+      if (msg) setTimeout(() => { statusEl.textContent = ''; }, 6000);
+    }
+
+    function renderFoods(list) {
+      if (!Array.isArray(list) || list.length === 0) {
+        foodsEl.innerHTML = '<div style="color:#555">No suggestions yet. Be the first to add one.</div>';
+        return;
+      }
+      foodsEl.innerHTML = list.map((f, idx) => `
+        <article class="idea" style="padding:1.2rem 1.4rem;">
+          <div style="margin-bottom:.9rem;">${escapeHtml(f.text)}</div>
+
+          <div class="idea-votes-row" style="gap:1.6rem; margin-bottom:.6rem;">
+            <div class="idea-vote agree">👍 <strong style="margin-left:.35rem;">${f.agreeCount ?? 0}</strong></div>
+            <div class="idea-vote disagree">👎 <strong style="margin-left:.35rem;">${f.disagreeCount ?? 0}</strong></div>
+            <div class="idea-vote pass" style="color:#666">PASS <strong style="margin-left:.35rem;">${f.passCount ?? 0}</strong></div>
+          </div>
+
+          <div class="idea-votes-row">
+            <button type="button" onclick="vote(${idx}, 'agree')" class="agree">Agree</button>
+            <button type="button" onclick="vote(${idx}, 'disagree')" class="disagree">Disagree</button>
+            <button type="button" onclick="vote(${idx}, 'pass')" class="pass">Pass</button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function escapeHtml(s = '') {
+      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    async function fetchFoods() {
+      try {
+        const res = await fetch(API_SUGGEST);
+        if (!res.ok) throw new Error('Failed to load');
+        const data = await res.json();
+        renderFoods(data);
+      } catch (err) {
+        renderFoods([]);
+        showStatus('Unable to load suggestions. Please try again later.');
+      }
+    }
+
+    async function vote(idx, type) {
+      try {
+        const res = await fetch(API_VOTE, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ idx, type })
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(()=>({}));
+          showStatus(body.error || 'Vote failed');
+        }
+        await fetchFoods();
+      } catch (err) {
+        showStatus('Network error. Please try again.');
+      }
+    }
+
+    document.getElementById('newFoodForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const input = document.getElementById('foodText');
+      const text = input.value.trim();
+      if (!text) return;
+      const submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch(API_SUGGEST, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ text })
+        });
+        if (res.ok) {
+          showStatus('Thank you — suggestion submitted.', '#2e7d32');
+          input.value = '';
+          await fetchFoods();
+        } else {
+          const body = await res.json().catch(()=>({}));
+          showStatus(body.error || 'Submission failed.');
+        }
+      } catch (err) {
+        showStatus('Network error. Please try again.');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    document.getElementById('resetPersonalFoodBtn').addEventListener('click', async () => {
+      if (!confirm('Reset your votes?')) return;
+      try {
+        const res = await fetch(API_RESET_PERSONAL, { method: 'POST' });
+        if (!res.ok) showStatus('Reset failed');
+        else {
+          showStatus('Your votes were reset.', '#2e7d32');
+          await fetchFoods();
+        }
+      } catch (err) {
+        showStatus('Network error. Please try again.');
+      }
+    });
+
+    // initial load
+    fetchFoods();
+  </script>
