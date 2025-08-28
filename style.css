@@ -20,6 +20,7 @@ h1, h2 {
 
 #ideas {
     margin-top: 1em;
+    padding-bottom: 3em; /* Add space below the last card */
 }
 
 .idea {
