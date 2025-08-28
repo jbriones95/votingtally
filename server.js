@@ -82,21 +82,20 @@ function generateLeetVariants(word) {
   return variants;
 }
 
-// Example: build extended bad word list
-let EXTENDED_BAD_WORDS = [];
-BAD_WORDS.forEach(word => {
-  EXTENDED_BAD_WORDS.push(word);
-  EXTENDED_BAD_WORDS.push(...generateLeetVariants(word));
-});
-
-console.log(EXTENDED_BAD_WORDS);
-
-// Track banned IPs and their timeout
-const bannedIPs = {};
+function normalizeLeet(text) {
+    let normalized = text.toLowerCase();
+    for (const [letter, subs] of Object.entries(LEET_MAP)) {
+        subs.forEach(sub => {
+            // Replace all occurrences of the substitution with the base letter
+            normalized = normalized.split(sub).join(letter);
+        });
+    }
+    return normalized;
+}
 
 function containsBadWord(text) {
-    const lower = text.toLowerCase();
-    return BAD_WORDS.some(word => lower.includes(word));
+    const normalized = normalizeLeet(text);
+    return BAD_WORDS.some(word => normalized.includes(word));
 }
 
 // Get all ideas
