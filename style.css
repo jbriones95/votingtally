@@ -25,10 +25,10 @@ h1, h2 {
 .idea {
     background: #c8e6c9; /* light green for positive ideas */
     border-radius: 8px;
-    margin-bottom: 1.2em;
+    margin-bottom: 2em; /* increased spacing between cards */
     box-shadow: none;
     border: 2px solid #388e3c;
-    padding: 1em 1.2em 0.7em 1.2em;
+    padding: 1.5em 2em 1.2em 2em; /* more padding inside card */
     font-size: 1.08em;
     color: #263238;
     transition: box-shadow 0.2s;
@@ -45,23 +45,24 @@ h1, h2 {
 }
 
 .idea > div:first-child {
-    margin-bottom: 0.7em;
+    margin-bottom: 1em; /* more space below idea text */
     font-size: 1em;
-    line-height: 1.3;
+    line-height: 1.4;
 }
 
 .idea-votes-row {
     display: flex;
     align-items: center;
-    gap: 1.2em;
+    gap: 2em; /* more space between vote groups */
     font-size: 1em;
-    margin-top: 0.2em;
+    margin-top: 0.5em; /* more space above votes row */
+    margin-bottom: 0.5em; /* more space below votes row */
 }
 
 .idea-vote {
     display: flex;
     align-items: center;
-    gap: 0.3em;
+    gap: 0.5em; /* more space between icon and number */
     font-weight: 500;
 }
 
@@ -87,10 +88,10 @@ button {
     color: #388e3c;
     border: none;
     border-radius: 6px;
-    padding: 0.2em 0.7em;
+    padding: 0.4em 1.2em; /* more padding for buttons */
     font-size: 1em;
     cursor: pointer;
-    margin-left: 0.5em;
+    margin-left: 0.7em; /* more space between buttons */
     font-weight: 500;
     transition: background 0.2s, color 0.2s;
     box-shadow: none;
@@ -147,7 +148,14 @@ input[type="text"]:focus {
         margin-right: 0;
     }
     .idea {
-        padding: 0.7em 0.5em 0.5em 0.5em;
+        padding: 1em 0.5em 0.7em 0.5em;
         font-size: 1em;
+    }
+    .idea-votes-row {
+        gap: 1em;
+    }
+    button {
+        padding: 0.3em 0.7em;
+        margin-left: 0.5em;
     }
 }
