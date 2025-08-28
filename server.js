@@ -18,7 +18,21 @@ let ideas = [
 ];
 
 // Simple bad word filter list
-const BAD_WORDS = ['fuck', 'badword2', 'damn', 'hell']; // Add more as needed
+const BAD_WORDS = [
+  'fuck', 'shit', 'bitch', 'bastard', 'asshole', 'damn', 'crap', 'dick', 'piss', 'slut',
+  'whore', 'hell', 'cunt', 'motherfucker', 'prick', 'twat', 'cock', 'bollocks', 'bugger',
+  'arse', 'wanker', 'tosser', 'git', 'moron', 'idiot', 'imbecile', 'jackass', 'numbnuts',
+  'dipshit', 'dumbass', 'butthead', 'scumbag', 'jerk', 'loser', 'fool', 'tool', 'douche',
+  'douchebag', 'dork', 'twit', 'nitwit', 'halfwit', 'blockhead', 'bonehead', 'simpleton',
+  'cretin', 'maggot', 'ratbag', 'fuckwit', 'pillock', 'knob', 'knobhead', 'bellend',
+  'shithead', 'shitface', 'shitbag', 'shitbrain', 'shite', 'bint', 'skank', 'harlot',
+  'tramp', 'guttertrash', 'hag', 'fart', 'gasbag', 'windbag', 'turd', 'numpty', 'drongo',
+  'yob', 'slag', 'tart', 'muppet', 'gitface', 'prat', 'jerkwad', 'peabrain', 'lunkhead',
+  'meathead', 'chump', 'punk', 'punkass', 'screwup', 'weirdo', 'freak', 'geek', 'nerd',
+  'geez', 'frigger', 'crud', 'bozo', 'goof', 'goofball', 'clown', 'clownshoe', 'klutz',
+  'schmuck', 'putz', 'badword1', 'badword2', 'badword3', 'badword4', 'badword5'
+];
+
 
 // Track banned IPs and their timeout
 const bannedIPs = {};
