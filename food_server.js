@@ -18,7 +18,6 @@ const littletonRestaurants = [
   "Cafe Terracotta",
   "Ninja Sushi"
 ];
-
 let foods = littletonRestaurants.map(name => ({ text: name, votes: {} }));
 
 // Bad words and leet map (same approach as main server)
