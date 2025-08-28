@@ -21,53 +21,56 @@
         <div id="ideas"></div>
     </div>
     <script>
-    const API_BASE = "https://votingtally.onrender.com/api";
-    let ideas = [];
+const API_BASE = "https://votingtally.onrender.com/api"; // Use relative path for local dev container
+let ideas = [];
 
-    // Render ideas in the requested style
-    function renderIdeas() {
-        const ideasDiv = document.getElementById('ideas');
-        ideasDiv.innerHTML = '';
-        ideas.forEach((idea, idx) => {
-            ideasDiv.innerHTML += `
-                <div class="idea">
-                    <div>${idea.text}</div>
-                    <div class="idea-votes-row">
-                        <span class="idea-vote agree">
-                            <span class="icon">👍</span> ${idea.agree}
-                        </span>
-                        <span class="idea-vote disagree">
-                            <span class="icon">👎</span> ${idea.disagree}
-                        </span>
-                    </div>
-                    <div class="idea-votes-row">
-                        <button onclick="vote(${idx}, 'agree')" class="agree">Agree</button>
-                        <button onclick="vote(${idx}, 'disagree')" class="disagree">Disagree</button>
-                    </div>
+// Render ideas in the requested style
+function renderIdeas() {
+    const ideasDiv = document.getElementById('ideas');
+    ideasDiv.innerHTML = '';
+    ideas.forEach((idea, idx) => {
+        ideasDiv.innerHTML += `
+            <div class="idea">
+                <div>${idea.text}</div>
+                <div class="idea-votes-row">
+                    <span class="idea-vote agree">
+                        <span class="icon">👍</span> ${idea.agree}
+                    </span>
+                    <span class="idea-vote disagree">
+                        <span class="icon">👎</span> ${idea.disagree}
+                    </span>
                 </div>
-            `;
-        });
-    }
+                <div class="idea-votes-row">
+                    <button type="button" onclick="vote(${idx}, 'agree')" class="agree">Agree</button>
+                    <button type="button" onclick="vote(${idx}, 'disagree')" class="disagree">Disagree</button>
+                </div>
+            </div>
+        `;
+    });
+}
 
-    async function fetchIdeas() {
-        const res = await fetch(`${API_BASE}/ideas`);
-        ideas = await res.json();
-        renderIdeas();
-    }
+async function fetchIdeas() {
+    const res = await fetch(`${API_BASE}/ideas`);
+    ideas = await res.json();
+    renderIdeas();
+}
 
-    async function vote(idx, type) {
-        await fetch(`${API_BASE}/vote`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idx, type })
-        });
-        fetchIdeas();
-    }
+async function vote(idx, type) {
+    await fetch(`${API_BASE}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idx, type })
+    });
+    fetchIdeas();
+}
 
-    document.getElementById('newIdeaForm').onsubmit = async function(e) {
-        e.preventDefault();
-        const text = document.getElementById('ideaText').value.trim();
-        if (text) {
+document.getElementById('newIdeaForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const text = document.getElementById('ideaText').value.trim();
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    if (text) {
+        try {
             const res = await fetch(`${API_BASE}/ideas`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -81,17 +84,21 @@
                 const data = await res.json();
                 alert(data.error || "Failed to submit idea.");
             }
+        } catch (err) {
+            alert("Network error. Please try again.");
         }
-    };
+    }
+    submitBtn.disabled = false;
+});
 
-    document.getElementById('resetPersonalVotesBtn').onclick = async function() {
-        if (confirm("Are you sure you want to reset your votes?")) {
-            await fetch(`${API_BASE}/resetPersonal`, { method: 'POST' });
-            fetchIdeas();
-        }
-    };
+document.getElementById('resetPersonalVotesBtn').onclick = async function() {
+    if (confirm("Are you sure you want to reset your votes?")) {
+        await fetch(`${API_BASE}/resetPersonal`, { method: 'POST' });
+        fetchIdeas();
+    }
+};
 
-    fetchIdeas();
-    </script>
+fetchIdeas();
+</script>
 </body>
 </html>
