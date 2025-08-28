@@ -44,6 +44,53 @@ const BAD_WORDS = [
 ];
 
 
+// Mapping common substitutions for letters/numbers/symbols
+const LEET_MAP = {
+  a: ['4', '@', 'ä', 'á', 'à', 'â', 'ª'],
+  b: ['8', 'ß', '13'],
+  c: ['(', '{', '[', '<', '¢'],
+  e: ['3', '€', '£', 'ë', 'ê', 'è', 'é'],
+  g: ['9', '6'],
+  h: ['#'],
+  i: ['1', '!', '|', 'í', 'ì', 'ï', 'î'],
+  l: ['1', '|', '£'],
+  o: ['0', '°', 'ø', 'ö', 'ó', 'ò', 'ô'],
+  s: ['$', '5', '§'],
+  t: ['7', '+'],
+  u: ['ü', 'ú', 'ù', 'û', 'v'],
+  z: ['2', 'ž']
+};
+
+// Function to expand a bad word with leet variations
+function generateLeetVariants(word) {
+  const chars = word.split('');
+  const variants = [''];
+
+  chars.forEach(char => {
+    const lowerChar = char.toLowerCase();
+    const subs = LEET_MAP[lowerChar] || [];
+    const newVariants = [];
+
+    variants.forEach(v => {
+      newVariants.push(v + char); // normal
+      subs.forEach(sub => newVariants.push(v + sub)); // leet/symbols
+    });
+
+    variants.splice(0, variants.length, ...newVariants);
+  });
+
+  return variants;
+}
+
+// Example: build extended bad word list
+let EXTENDED_BAD_WORDS = [];
+BAD_WORDS.forEach(word => {
+  EXTENDED_BAD_WORDS.push(word);
+  EXTENDED_BAD_WORDS.push(...generateLeetVariants(word));
+});
+
+console.log(EXTENDED_BAD_WORDS);
+
 // Track banned IPs and their timeout
 const bannedIPs = {};
 
