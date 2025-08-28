@@ -7,11 +7,19 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static(__dirname));
 
-// In-memory storage for food suggestions
-let foods = [
-  { text: "More local vegan options at downtown restaurants", votes: {} },
-  { text: "Weekend farmers market with prepared food stalls", votes: {} }
+// In-memory storage for food suggestions (replace ideas with restaurants)
+const littletonRestaurants = [
+  "Angelo's Taverna - Littleton",
+  "ViewHouse",
+  "Smokin Fins - Littleton",
+  "Manning's Steaks & Spirits",
+  "Farm House Restaurant at Breckenridge Brewery",
+  "Grande Station",
+  "Cafe Terracotta",
+  "Ninja Sushi"
 ];
+
+let foods = littletonRestaurants.map(name => ({ text: name, votes: {} }));
 
 // Bad words and leet map (same approach as main server)
 const BAD_WORDS = ['shit','damn','badword1','badword2'];
@@ -126,11 +134,9 @@ app.post('/api/food/resetPersonal', (req, res) => {
   return res.json({ success: true });
 });
 
-// Serve the food-specific HTML when hitting root
-app.get('/', (req, res) => {
-  // prefer food_index.html if present, fallback to index.html
-  const file = path.join(__dirname, 'food_index.html');
-  res.sendFile(file);
+// Serve food page at /food and /food.html so embeds can use either path
+app.get(['/food', '/food.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'food.html'));
 });
 
 const port = process.env.PORT || 3001;
