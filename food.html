@@ -6,12 +6,34 @@
   <title></title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* small page-specific tweaks (no title / no submission form) */
-    .container { max-width: 800px; margin: 2.5rem auto; padding: 0 1rem; }
+    /* page layout: grid of 3 cards, responsive */
+    .container { max-width: 1100px; margin: 2.5rem auto; padding: 0 1rem; }
     .header { display:flex; justify-content:flex-end; align-items:center; gap:1rem; }
-    .food-list { margin-top:1rem; }
+    .food-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1rem; }
+    .idea { /* ensure cards take full grid cell and spacing looks good */
+      padding: 1.2rem 1.4rem;
+      border-radius: 8px;
+      background: #f5f5f5;
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 120px;
+    }
+    .idea .title { margin-bottom: .9rem; }
+    .idea-votes-row { display:flex; gap:1.6rem; align-items:center; margin-bottom:.6rem; flex-wrap:wrap; }
+    .idea .controls { display:flex; gap:.6rem; flex-wrap:wrap; }
     .hint { color:#2e7d32; cursor:pointer; background:transparent; border:none; padding:0; font-weight:500; }
     .status { margin-top:0.5rem; color:#d32f2f; }
+    /* responsive */
+    @media (max-width: 1000px) {
+      .food-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .food-grid { grid-template-columns: 1fr; }
+      .container { padding: 0 .75rem; }
+    }
   </style>
 </head>
 <body>
@@ -46,23 +68,25 @@
         foodsEl.innerHTML = '<div style="color:#555">No suggestions yet.</div>';
         return;
       }
-      foodsEl.innerHTML = list.map((f, idx) => `
-        <article class="idea" style="padding:1.2rem 1.4rem;">
-          <div style="margin-bottom:.9rem;">${escapeHtml(f.text)}</div>
+      const cards = list.map((f, idx) => `
+        <article class="idea" role="article">
+          <div class="title">${escapeHtml(f.text)}</div>
 
-          <div class="idea-votes-row" style="gap:1.6rem; margin-bottom:.6rem;">
+          <div class="idea-votes-row" aria-hidden="true">
             <div class="idea-vote agree">👍 <strong style="margin-left:.35rem;">${f.agreeCount ?? 0}</strong></div>
             <div class="idea-vote disagree">👎 <strong style="margin-left:.35rem;">${f.disagreeCount ?? 0}</strong></div>
             <div class="idea-vote pass" style="color:#666">PASS <strong style="margin-left:.35rem;">${f.passCount ?? 0}</strong></div>
           </div>
 
-          <div class="idea-votes-row">
+          <div class="controls" aria-label="Voting controls">
             <button type="button" onclick="vote(${idx}, 'agree')" class="agree">Agree</button>
             <button type="button" onclick="vote(${idx}, 'disagree')" class="disagree">Disagree</button>
             <button type="button" onclick="vote(${idx}, 'pass')" class="pass">Pass</button>
           </div>
         </article>
       `).join('');
+
+      foodsEl.innerHTML = `<div class="food-grid">${cards}</div>`;
     }
 
     function escapeHtml(s = '') {
