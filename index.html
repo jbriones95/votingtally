@@ -24,7 +24,7 @@
     const API_BASE = "https://votingtally.onrender.com/api";
     let ideas = [];
 
-    // Render ideas
+    // Render ideas in the requested style
     function renderIdeas() {
         const ideasDiv = document.getElementById('ideas');
         ideasDiv.innerHTML = '';
@@ -33,9 +33,17 @@
                 <div class="idea">
                     <div>${idea.text}</div>
                     <div class="idea-votes-row">
-                        <span class="idea-vote agree"><span class="icon">👍</span> ${idea.agreeVotes}</span>
-                        <span class="idea-vote disagree"><span class="icon">👎</span> ${idea.disagreeVotes}</span>
-                        <span class="idea-vote pass">| PASS ${idea.passVotes}</span>
+                        <span class="idea-vote agree">
+                            <span class="icon">👍</span> ${idea.agree}
+                        </span>
+                        <span class="idea-vote disagree">
+                            <span class="icon">👎</span> ${idea.disagree}
+                        </span>
+                        <!-- Optional: Add a PASS button if you want to support it in backend -->
+                    </div>
+                    <div class="idea-votes-row">
+                        <button onclick="vote(${idx}, 'agree')" class="agree">Agree</button>
+                        <button onclick="vote(${idx}, 'disagree')" class="disagree">Disagree</button>
                     </div>
                 </div>
             `;
