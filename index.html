@@ -21,7 +21,7 @@
         <div id="ideas"></div>
     </div>
     <script>
-const API_BASE = "https://votingtally.onrender.com/api"; // Use relative path for local dev container
+const API_BASE = "https://votingtally.onrender.com/api"; // Use this for Render deployment
 let ideas = [];
 
 // Render ideas in the requested style
@@ -50,18 +50,27 @@ function renderIdeas() {
 }
 
 async function fetchIdeas() {
-    const res = await fetch(`${API_BASE}/ideas`);
-    ideas = await res.json();
-    renderIdeas();
+    try {
+        const res = await fetch(`${API_BASE}/ideas`);
+        if (!res.ok) throw new Error("Failed to fetch ideas");
+        ideas = await res.json();
+        renderIdeas();
+    } catch (err) {
+        document.getElementById('ideas').innerHTML = "<div style='color:red;'>Unable to load ideas. Please try again later.</div>";
+    }
 }
 
 async function vote(idx, type) {
-    await fetch(`${API_BASE}/vote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idx, type })
-    });
-    fetchIdeas();
+    try {
+        await fetch(`${API_BASE}/vote`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idx, type })
+        });
+        fetchIdeas();
+    } catch (err) {
+        alert("Network error. Please try again.");
+    }
 }
 
 document.getElementById('newIdeaForm').addEventListener('submit', async function(e) {
@@ -93,12 +102,16 @@ document.getElementById('newIdeaForm').addEventListener('submit', async function
 
 document.getElementById('resetPersonalVotesBtn').onclick = async function() {
     if (confirm("Are you sure you want to reset your votes?")) {
-        await fetch(`${API_BASE}/resetPersonal`, { method: 'POST' });
-        fetchIdeas();
+        try {
+            await fetch(`${API_BASE}/resetPersonal`, { method: 'POST' });
+            fetchIdeas();
+        } catch (err) {
+            alert("Network error. Please try again.");
+        }
     }
 };
 
 fetchIdeas();
-</script>
+    </script>
 </body>
 </html>
