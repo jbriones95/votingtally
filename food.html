@@ -6,12 +6,9 @@
   <title>Littleton Eateries — Suggestions & Voting</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* small page-specific tweaks */
+    /* small page-specific tweaks (no title / no submission form) */
     .container { max-width: 800px; margin: 2.5rem auto; padding: 0 1rem; }
-    .header { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
-    .header h1 { margin:0; font-size:1.6rem; }
-    .food-form { margin:1.25rem 0 1.5rem; display:flex; gap:0.75rem; align-items:center; }
-    .food-form input { flex:1; border-radius:24px; padding:0.6rem 1rem; border:1px solid #ccc; }
+    .header { display:flex; justify-content:flex-end; align-items:center; gap:1rem; }
     .food-list { margin-top:1rem; }
     .hint { color:#2e7d32; cursor:pointer; background:transparent; border:none; padding:0; font-weight:500; }
     .status { margin-top:0.5rem; color:#d32f2f; }
@@ -20,18 +17,10 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>Littleton Eateries — Suggestions & Voting</h1>
       <div>
         <button id="resetPersonalFoodBtn" class="hint">Reset My Votes</button>
       </div>
     </div>
-
-    <section class="food-form" aria-label="Propose a new eatery idea">
-      <form id="newFoodForm" style="display:flex; width:100%; gap:.75rem;">
-        <input id="foodText" name="foodText" type="text" placeholder="Suggest a new food option, event, or vendor..." required />
-        <button type="submit">Submit</button>
-      </form>
-    </section>
 
     <section id="foods" class="food-list" aria-live="polite"></section>
     <div id="status" class="status" role="status" aria-atomic="true"></div>
@@ -54,7 +43,7 @@
 
     function renderFoods(list) {
       if (!Array.isArray(list) || list.length === 0) {
-        foodsEl.innerHTML = '<div style="color:#555">No suggestions yet. Be the first to add one.</div>';
+        foodsEl.innerHTML = '<div style="color:#555">No suggestions yet.</div>';
         return;
       }
       foodsEl.innerHTML = list.map((f, idx) => `
@@ -85,6 +74,8 @@
         const res = await fetch(API_SUGGEST);
         if (!res.ok) throw new Error('Failed to load');
         const data = await res.json();
+        // client-side safety: sort by total votes (descending)
+        data.sort((a, b) => ((b.agreeCount||0) + (b.disagreeCount||0) + (b.passCount||0)) - ((a.agreeCount||0) + (a.disagreeCount||0) + (a.passCount||0)));
         renderFoods(data);
       } catch (err) {
         renderFoods([]);
@@ -109,34 +100,6 @@
       }
     }
 
-    document.getElementById('newFoodForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const input = document.getElementById('foodText');
-      const text = input.value.trim();
-      if (!text) return;
-      const submitBtn = this.querySelector('button[type="submit"]');
-      submitBtn.disabled = true;
-      try {
-        const res = await fetch(API_SUGGEST, {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ text })
-        });
-        if (res.ok) {
-          showStatus('Thank you — suggestion submitted.', '#2e7d32');
-          input.value = '';
-          await fetchFoods();
-        } else {
-          const body = await res.json().catch(()=>({}));
-          showStatus(body.error || 'Submission failed.');
-        }
-      } catch (err) {
-        showStatus('Network error. Please try again.');
-      } finally {
-        submitBtn.disabled = false;
-      }
-    });
-
     document.getElementById('resetPersonalFoodBtn').addEventListener('click', async () => {
       if (!confirm('Reset your votes?')) return;
       try {
@@ -154,3 +117,5 @@
     // initial load
     fetchFoods();
   </script>
+</body>
+</html>

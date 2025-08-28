@@ -77,9 +77,12 @@ app.get('/api/food', (req, res) => {
       disagree: s.disagreePct,
       agreeCount: s.agreeCount,
       disagreeCount: s.disagreeCount,
-      passCount: s.passCount
+      passCount: s.passCount,
+      total: s.total
     };
   });
+  // sort by total votes (descending) so items with more activity appear first
+  out.sort((a, b) => (b.total || 0) - (a.total || 0));
   res.json(out);
 });
 
@@ -123,10 +126,14 @@ app.post('/api/food/resetPersonal', (req, res) => {
   return res.json({ success: true });
 });
 
+// Serve the food-specific HTML when hitting root
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  // prefer food_index.html if present, fallback to index.html
+  const file = path.join(__dirname, 'food_index.html');
+  res.sendFile(file);
 });
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => {
-  console.log(`Food server listening on port ${port}
+  console.log(`Food server listening on port ${port}`);
+});
