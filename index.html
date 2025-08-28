@@ -39,7 +39,6 @@
                         <span class="idea-vote disagree">
                             <span class="icon">👎</span> ${idea.disagree}
                         </span>
-                        <!-- Optional: Add a PASS button if you want to support it in backend -->
                     </div>
                     <div class="idea-votes-row">
                         <button onclick="vote(${idx}, 'agree')" class="agree">Agree</button>
@@ -69,13 +68,19 @@
         e.preventDefault();
         const text = document.getElementById('ideaText').value.trim();
         if (text) {
-            await fetch(`${API_BASE}/ideas`, {
+            const res = await fetch(`${API_BASE}/ideas`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text })
             });
-            document.getElementById('ideaText').value = '';
-            fetchIdeas();
+            if (res.ok) {
+                alert("Thank you for submitting your idea!");
+                document.getElementById('ideaText').value = '';
+                fetchIdeas();
+            } else {
+                const data = await res.json();
+                alert(data.error || "Failed to submit idea.");
+            }
         }
     };
 
