@@ -10,135 +10,6 @@ h1, h2 {
     margin-bottom: 1em;
 }
 
-.idea-form, .idea-list {
-    background: transparent;
-    box-shadow: none;
-    padding: 0;
-    margin: 2em auto;
-    max-width: 600px;
-}
-
-#ideas {
-    margin-top: 1em;
-    padding-bottom: 3em; /* Add space below the last card */
-}
-
-.idea {
-    background: #c8e6c9; /* light green for positive ideas */
-    border-radius: 8px;
-    margin-bottom: 2em; /* increased spacing between cards */
-    box-shadow: none;
-    border: 2px solid #388e3c;
-    padding: 1.5em 2em 1.2em 2em; /* more padding inside card */
-    font-size: 1.08em;
-    color: #263238;
-    transition: box-shadow 0.2s;
-    position: relative;
-}
-
-.idea:nth-child(even) {
-    background: #f5ecd6; /* alternate: light tan */
-    border-color: #bca77b;
-}
-
-.idea:last-child {
-    border-bottom: none;
-}
-
-.idea > div:first-child {
-    margin-bottom: 1em; /* more space below idea text */
-    font-size: 1em;
-    line-height: 1.4;
-}
-
-.idea-votes-row {
-    display: flex;
-    align-items: center;
-    gap: 2em; /* more space between vote groups */
-    font-size: 1em;
-    margin-top: 0.5em; /* more space above votes row */
-    margin-bottom: 0.5em; /* more space below votes row */
-}
-
-.idea-vote {
-    display: flex;
-    align-items: center;
-    gap: 0.5em; /* more space between icon and number */
-    font-weight: 500;
-}
-
-.idea-vote.agree {
-    color: #388e3c;
-}
-
-.idea-vote.disagree {
-    color: #d32f2f;
-}
-
-.idea-vote.pass {
-    color: #757575;
-}
-
-.idea-vote .icon {
-    font-size: 1em;
-    margin-right: 0.2em;
-}
-
-button {
-    background: transparent;
-    color: #388e3c;
-    border: none;
-    border-radius: 6px;
-    padding: 0.4em 1.2em; /* more padding for buttons */
-    font-size: 1em;
-    cursor: pointer;
-    margin-left: 0.7em; /* more space between buttons */
-    font-weight: 500;
-    transition: background 0.2s, color 0.2s;
-    box-shadow: none;
-}
-
-button.disagree {
-    color: #d32f2f;
-}
-
-button.pass {
-    color: #757575;
-}
-
-button:hover, button:focus {
-    background: #e0e0e0;
-    color: #263238;
-    outline: none;
-}
-
-input[type="text"] {
-    border: 1px solid #bdbdbd;
-    border-radius: 24px;
-    padding: 0.5em 1em;
-    font-size: 1em;
-    width: 70%;
-    margin-right: 1em;
-    transition: border 0.2s;
-}
-
-input[type="text"]:focus {
-    border: 1.5px solid #1976d2;
-    outline: none;
-}
-
-.agree {
-    color: #388e3c;
-    font-weight: 500;
-    margin-right: 1em;
-}
-
-.disagree {
-    color: #d32f2f;
-    font-weight: 500;
-    margin-right: 1em;
-}
-
 .food-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -146,31 +17,125 @@ input[type="text"]:focus {
     margin-top: 1rem;
 }
 
+.cuisine-section {
+    margin-bottom: 2.5em;
+}
+
+.cuisine-title {
+    font-size: 1.3rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #388e3c;
+}
+
+.restaurant-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+.restaurant-card {
+    background: #c8e6c9;
+    border-radius: 8px;
+    margin-bottom: 2em;
+    box-shadow: none;
+    border: 2px solid #388e3c;
+    padding: 1.5em 2em 1.2em 2em;
+    font-size: 1.08em;
+    color: #263238;
+    transition: box-shadow 0.2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 120px;
+    justify-content: space-between;
+}
+
+.restaurant-card:nth-child(even) {
+    background: #f5ecd6;
+    border-color: #bca77b;
+}
+
+.restaurant-card:last-child {
+    border-bottom: none;
+}
+
+.restaurant-name {
+    margin-bottom: 1em;
+    font-size: 1.1em;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+.restaurant-address {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 1em;
+}
+
+.vote-row {
+    display: flex;
+    align-items: center;
+    gap: 2em;
+    font-size: 1em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.vote-btn {
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 0.4em 1.2em;
+    font-size: 1em;
+    cursor: pointer;
+    margin-left: 0.7em;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+    box-shadow: none;
+}
+
+.vote-btn.agree {
+    color: #388e3c;
+}
+
+.vote-btn.disagree {
+    color: #d32f2f;
+}
+
+.vote-count {
+    font-weight: 500;
+    margin-left: 0.3em;
+    font-size: 1em;
+}
+
+.vote-btn:hover, .vote-btn:focus {
+    background: #e0e0e0;
+    color: #263238;
+    outline: none;
+}
+
 @media (max-width: 1000px) {
     .food-grid { grid-template-columns: repeat(2, 1fr); }
+    .restaurant-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 600px) {
     .food-grid { grid-template-columns: 1fr; }
+    .restaurant-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 700px) {
-    .idea-form, .idea-list {
-        max-width: 98vw;
-        padding: 1em 0.5em;
-    }
-    input[type="text"] {
-        width: 100%;
-        margin-right: 0;
-    }
-    .idea {
+    .restaurant-card {
         padding: 1em 0.5em 0.7em 0.5em;
         font-size: 1em;
     }
-    .idea-votes-row {
+    .vote-row {
         gap: 1em;
     }
-    button {
+    .vote-btn {
         padding: 0.3em 0.7em;
         margin-left: 0.5em;
     }
