@@ -101,6 +101,10 @@
           };
         });
         renderCuisines();
+        // --- Resize parent iframe if possible ---
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({iframeHeight: document.body.scrollHeight}, "*");
+        }
       } catch (err) {
         votesData = {};
         renderCuisines();
@@ -142,6 +146,12 @@
     };
 
     fetchVotes();
+    // --- Resize parent iframe on load ---
+    window.addEventListener("load", function() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({iframeHeight: document.body.scrollHeight}, "*");
+      }
+    });
   </script>
 </body>
 </html>
