@@ -12,7 +12,6 @@
     <div id="cuisines"></div>
   </div>
   <script>
-    // Example data: 5 cuisines, each with 2-3 restaurants
     const restaurantsByCuisine = {
       "American": [
         { name: "Manning's Steaks & Spirits", address: "111 S. Broadway" },
@@ -34,22 +33,10 @@
       ]
     };
 
-    // Voting state fetched from server
     let votesData = {};
 
     function escapeHtml(s = '') {
       return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    }
-
-    function getFlatList() {
-      // Flatten for index mapping
-      const flat = [];
-      Object.entries(restaurantsByCuisine).forEach(([cuisine, list]) => {
-        list.forEach((r, idx) => {
-          flat.push({ cuisine, idx, ...r });
-        });
-      });
-      return flat;
     }
 
     function renderCuisines() {
@@ -63,8 +50,9 @@
               const vote = votesData[flatIdx] || { agree: 0, disagree: 0, pass: 0 };
               const disabled = vote.voted ? "disabled" : "";
               const votedMsg = vote.voted ? `<div style="color:#388e3c;font-size:.95em;margin-top:.5em;">You voted</div>` : "";
+              // Use restaurant-card class for styling
               const html = `
-                <div class="card">
+                <div class="restaurant-card">
                   <div class="restaurant-name">${escapeHtml(r.name)}</div>
                   <div class="restaurant-address">${escapeHtml(r.address)}</div>
                   <div class="vote-row">
@@ -85,12 +73,10 @@
     }
 
     async function fetchVotes() {
-      // Get votes from server
       try {
         const res = await fetch('/api/food');
         if (!res.ok) throw new Error('Failed to load');
         const data = await res.json();
-        // Map to index for rendering
         votesData = {};
         data.forEach((item, idx) => {
           votesData[idx] = {
