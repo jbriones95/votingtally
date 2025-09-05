@@ -99,10 +99,11 @@ function computeStats(votesObj) {
 // --- API routes ---
 app.get('/api/food', (req, res) => {
   const ip = clientIp(req);
-  // Return voting stats for each restaurant, and if this IP has voted
-  const out = flatRestaurants.map(r => {
+  // Compute stats for each restaurant
+  const statsList = flatRestaurants.map((r, idx) => {
     const s = computeStats(r.votes);
     return {
+      idx,
       cuisine: r.cuisine,
       name: r.name,
       address: r.address,
@@ -112,7 +113,15 @@ app.get('/api/food', (req, res) => {
       voted: !!r.votes[ip]
     };
   });
-  res.json(out);
+
+  // Sort by thumbs up (agreeCount) descending, then thumbs down, then name
+  statsList.sort((a, b) => {
+    if (b.agreeCount !== a.agreeCount) return b.agreeCount - a.agreeCount;
+    if (a.disagreeCount !== b.disagreeCount) return a.disagreeCount - b.disagreeCount;
+    return a.name.localeCompare(b.name);
+  });
+
+  res.json(statsList);
 });
 
 app.post('/api/food', (req, res) => {
