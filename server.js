@@ -8,17 +8,39 @@ app.use(cors());
 app.use(express.static(__dirname));
 
 // In-memory storage for food suggestions (replace ideas with restaurants)
-const littletonRestaurants = [
-  "Angelo's Taverna - Littleton",
-  "ViewHouse",
-  "Smokin Fins - Littleton",
-  "Manning's Steaks & Spirits",
-  "Farm House Restaurant at Breckenridge Brewery",
-  "Grande Station",
-  "Cafe Terracotta",
-  "Ninja Sushi"
-];
-let foods = littletonRestaurants.map(name => ({ text: name, votes: {} }));
+const restaurantsByCuisine = {
+  "American": [
+    { name: "Manning's Steaks & Spirits", address: "111 S. Broadway" },
+    { name: "Farm House Restaurant at Breckenridge Brewery", address: "2990 Brewery Ln" },
+    { name: "Grande Station", address: "2299 W Main St" }
+  ],
+  "Italian": [
+    { name: "Angelo's Taverna - Littleton", address: "6885 S Santa Fe Dr" },
+    { name: "Cafe Terracotta", address: "5649 S Curtice St" }
+  ],
+  "Seafood": [
+    { name: "Smokin Fins - Littleton", address: "2575 W Main St" }
+  ],
+  "Asian": [
+    { name: "Ninja Sushi", address: "7301 S Santa Fe Dr" }
+  ],
+  "Bar & Grill": [
+    { name: "ViewHouse", address: "2680 W Main St" }
+  ]
+};
+
+// Flatten restaurants for voting by index
+const flatRestaurants = [];
+Object.entries(restaurantsByCuisine).forEach(([cuisine, list]) => {
+  list.forEach((r, idx) => {
+    flatRestaurants.push({
+      cuisine,
+      name: r.name,
+      address: r.address,
+      votes: {}
+    });
+  });
+});
 
 // Bad words and leet map (same approach as main server)
 const BAD_WORDS = ['shit','damn','badword1','badword2'];
@@ -74,9 +96,23 @@ function computeStats(votesObj) {
   return { agreeCount, disagreeCount, passCount, agreePct, disagreePct, total };
 }
 
-// Routes for food suggestions
+// --- API routes ---
 app.get('/api/food', (req, res) => {
-  res.json(foods);
+  const ip = clientIp(req);
+  // Return voting stats for each restaurant, and if this IP has voted
+  const out = flatRestaurants.map(r => {
+    const s = computeStats(r.votes);
+    return {
+      cuisine: r.cuisine,
+      name: r.name,
+      address: r.address,
+      agreeCount: s.agreeCount,
+      disagreeCount: s.disagreeCount,
+      passCount: s.passCount,
+      voted: !!r.votes[ip]
+    };
+  });
+  res.json(out);
 });
 
 app.post('/api/food', (req, res) => {
@@ -92,7 +128,14 @@ app.post('/api/food', (req, res) => {
     return res.status(403).json({ error: 'Inappropriate content detected. You are banned for 10 minutes.' });
   }
 
-  foods.push({ text: text.trim(), votes: {} });
+  // --- Update foods to support cuisine and address ---
+  const newRestaurant = {
+    cuisine: "Unknown",
+    name: text.trim(),
+    address: "",
+    votes: {}
+  };
+  flatRestaurants.push(newRestaurant);
   return res.json({ success: true });
 });
 
@@ -102,19 +145,24 @@ app.post('/api/food/vote', (req, res) => {
   if (!Number.isInteger(idx) || !['agree','disagree','pass'].includes(type)) {
     return res.status(400).json({ error: 'Invalid vote' });
   }
-  if (!foods[idx]) return res.status(404).json({ error: 'Suggestion not found' });
+  if (!flatRestaurants[idx]) return res.status(404).json({ error: 'Restaurant not found' });
 
-  if (foods[idx].votes[ip]) return res.status(409).json({ error: 'Already voted' });
+  if (flatRestaurants[idx].votes[ip]) return res.status(409).json({ error: 'Already voted' });
 
-  foods[idx].votes[ip] = type;
-  const s = computeStats(foods[idx].votes);
-  return res.json({ success: true, agree: s.agreePct, disagree: s.disagreePct });
+  flatRestaurants[idx].votes[ip] = type;
+  const s = computeStats(flatRestaurants[idx].votes);
+  return res.json({
+    success: true,
+    agreeCount: s.agreeCount,
+    disagreeCount: s.disagreeCount,
+    passCount: s.passCount
+  });
 });
 
 app.post('/api/food/resetPersonal', (req, res) => {
   const ip = clientIp(req);
-  foods.forEach(item => {
-    if (item.votes[ip]) delete item.votes[ip];
+  flatRestaurants.forEach(r => {
+    if (r.votes[ip]) delete r.votes[ip];
   });
   return res.json({ success: true });
 });
