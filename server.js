@@ -167,6 +167,19 @@ app.post('/api/food/resetPersonal', (req, res) => {
   return res.json({ success: true });
 });
 
+app.post('/api/food/vote/reset', (req, res) => {
+  const ip = clientIp(req);
+  const { idx } = req.body || {};
+  if (!Number.isInteger(idx) || !flatRestaurants[idx]) {
+    return res.status(400).json({ error: 'Invalid restaurant' });
+  }
+  if (flatRestaurants[idx].votes[ip]) {
+    delete flatRestaurants[idx].votes[ip];
+    return res.json({ success: true });
+  }
+  return res.status(409).json({ error: 'No vote to reset' });
+});
+
 // Serve /food and /food.html so embeds can use either path
 app.get(['/food', '/food.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'food.html'));

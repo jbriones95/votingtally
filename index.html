@@ -70,6 +70,7 @@
                       <span class="vote-count">${vote.disagree || 0}</span>
                     </div>
                     ${votedMsg}
+                    <button class="vote-btn" style="margin-top:0.7em;" onclick="resetVote(${r.idx})" ${!vote.voted ? "disabled" : ""} title="Reset my vote">Reset</button>
                   </div>
                 `;
               }).join('')}
@@ -112,6 +113,23 @@
         const data = await res.json();
         if (!res.ok) {
           alert(data.error || "Vote failed.");
+        }
+        await fetchVotes();
+      } catch (err) {
+        alert("Network error. Please try again.");
+      }
+    };
+
+    window.resetVote = async function(idx) {
+      try {
+        const res = await fetch('/api/food/vote/reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idx })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || "Reset failed.");
         }
         await fetchVotes();
       } catch (err) {
