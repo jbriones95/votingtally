@@ -1,117 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Community Voting Tally</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Littleton Colorado Restaurants by Cuisine</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* page layout: grid of 3 cards, responsive */
+    .container { max-width: 1100px; margin: 2.5rem auto; padding: 0 1rem; }
+    h1 { margin-bottom: 2rem; color: #263238; font-weight: 500; }
+    .cuisine-section { margin-bottom: 2.5rem; }
+    .cuisine-title { font-size: 1.3rem; font-weight: 500; margin-bottom: 1rem; color: #388e3c; }
+    .restaurant-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .card {
+      padding: 1.2rem 1.4rem;
+      border-radius: 8px;
+      background: #f5f5f5;
+      border: 1px solid rgba(0,0,0,0.06);
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #263238;
+      font-size: 1rem;
+    }
+    .restaurant-name { font-weight: 500; margin-bottom: .5rem; }
+    .restaurant-address { font-size: .95rem; color: #555; margin-bottom: .5rem; }
+    @media (max-width:1000px) { .restaurant-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width:600px)  { .restaurant-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
-    <h1>Community Ideas & Voting</h1>
-    <div class="idea-form">
-        <h2>Propose a New Idea</h2>
-        <form id="newIdeaForm">
-            <input type="text" id="ideaText" placeholder="Your idea for the community..." required style="width:70%;">
-            <button type="submit">Submit Idea</button>
-        </form>
-    </div>
-    <div class="idea-list">
-        <h2>Ideas & Voting</h2>
-        <button id="resetPersonalVotesBtn" style="margin-bottom:1em;">Reset My Votes</button>
-        <div id="ideas"></div>
-    </div>
-    <script>
-const API_BASE = "https://votingtally.onrender.com/api"; // Use this for Render deployment
-let ideas = [];
+  <div class="container">
+    <h1>Littleton Colorado Restaurants by Cuisine</h1>
+    <div id="cuisines"></div>
+  </div>
+  <script>
+    // Example data: 5 cuisines, each with 2-3 restaurants
+    const restaurantsByCuisine = {
+      "American": [
+        { name: "Manning's Steaks & Spirits", address: "111 S. Broadway" },
+        { name: "Farm House Restaurant at Breckenridge Brewery", address: "2990 Brewery Ln" },
+        { name: "Grande Station", address: "2299 W Main St" }
+      ],
+      "Italian": [
+        { name: "Angelo's Taverna - Littleton", address: "6885 S Santa Fe Dr" },
+        { name: "Cafe Terracotta", address: "5649 S Curtice St" }
+      ],
+      "Seafood": [
+        { name: "Smokin Fins - Littleton", address: "2575 W Main St" }
+      ],
+      "Asian": [
+        { name: "Ninja Sushi", address: "7301 S Santa Fe Dr" }
+      ],
+      "Bar & Grill": [
+        { name: "ViewHouse", address: "2680 W Main St" }
+      ]
+    };
 
-// Render ideas in the requested style
-function renderIdeas() {
-    const ideasDiv = document.getElementById('ideas');
-    ideasDiv.innerHTML = '';
-    ideas.forEach((idea, idx) => {
-        ideasDiv.innerHTML += `
-            <div class="idea">
-                <div>${idea.text}</div>
-                <div class="idea-votes-row">
-                    <span class="idea-vote agree">
-                        <span class="icon">👍</span> ${idea.agree}
-                    </span>
-                    <span class="idea-vote disagree">
-                        <span class="icon">👎</span> ${idea.disagree}
-                    </span>
-                </div>
-                <div class="idea-votes-row">
-                    <button type="button" onclick="vote(${idx}, 'agree')" class="agree">Agree</button>
-                    <button type="button" onclick="vote(${idx}, 'disagree')" class="disagree">Disagree</button>
-                </div>
-            </div>
-        `;
-    });
-}
-
-async function fetchIdeas() {
-    try {
-        const res = await fetch(`${API_BASE}/ideas`);
-        if (!res.ok) throw new Error("Failed to fetch ideas");
-        ideas = await res.json();
-        renderIdeas();
-    } catch (err) {
-        document.getElementById('ideas').innerHTML = "<div style='color:red;'>Unable to load ideas. Please try again later.</div>";
+    function escapeHtml(s = '') {
+      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
-}
 
-async function vote(idx, type) {
-    try {
-        await fetch(`${API_BASE}/vote`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idx, type })
-        });
-        fetchIdeas();
-    } catch (err) {
-        alert("Network error. Please try again.");
+    function renderCuisines() {
+      const cuisinesEl = document.getElementById('cuisines');
+      cuisinesEl.innerHTML = Object.entries(restaurantsByCuisine).map(([cuisine, list]) => `
+        <section class="cuisine-section">
+          <div class="cuisine-title">${escapeHtml(cuisine)}</div>
+          <div class="restaurant-grid">
+            ${list.map(r => `
+              <div class="card">
+                <div class="restaurant-name">${escapeHtml(r.name)}</div>
+                <div class="restaurant-address">${escapeHtml(r.address)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+      `).join('');
     }
-}
 
-document.getElementById('newIdeaForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const text = document.getElementById('ideaText').value.trim();
-    const submitBtn = this.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    if (text) {
-        try {
-            const res = await fetch(`${API_BASE}/ideas`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text })
-            });
-            if (res.ok) {
-                alert("Thank you for submitting your idea!");
-                document.getElementById('ideaText').value = '';
-                fetchIdeas();
-            } else {
-                const data = await res.json();
-                alert(data.error || "Failed to submit idea.");
-            }
-        } catch (err) {
-            alert("Network error. Please try again.");
-        }
-    }
-    submitBtn.disabled = false;
-});
-
-document.getElementById('resetPersonalVotesBtn').onclick = async function() {
-    if (confirm("Are you sure you want to reset your votes?")) {
-        try {
-            await fetch(`${API_BASE}/resetPersonal`, { method: 'POST' });
-            fetchIdeas();
-        } catch (err) {
-            alert("Network error. Please try again.");
-        }
-    }
-};
-
-fetchIdeas();
-    </script>
+    renderCuisines();
+  </script>
 </body>
 </html>

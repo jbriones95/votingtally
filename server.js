@@ -7,14 +7,21 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static(__dirname));
 
-// In-memory storage
-let ideas = [
-  { text: "Safe bike routes to schools, groceries, and work; not just recreational greenways", votes: {} },
-  { text: "Littleton should not have any bike lanes unless they are warranted", votes: {} }
+// In-memory storage for food suggestions (replace ideas with restaurants)
+const littletonRestaurants = [
+  "Angelo's Taverna - Littleton",
+  "ViewHouse",
+  "Smokin Fins - Littleton",
+  "Manning's Steaks & Spirits",
+  "Farm House Restaurant at Breckenridge Brewery",
+  "Grande Station",
+  "Cafe Terracotta",
+  "Ninja Sushi"
 ];
+let foods = littletonRestaurants.map(name => ({ text: name, votes: {} }));
 
-// Bad words and leet map
-const BAD_WORDS = ['shit','damn','badword1','badword2']; // extend as needed
+// Bad words and leet map (same approach as main server)
+const BAD_WORDS = ['shit','damn','badword1','badword2'];
 const LEET_MAP = {
   a: ['4','@','ä','á','à','â','ª'],
   b: ['8','ß','13'],
@@ -31,21 +38,16 @@ const LEET_MAP = {
   z: ['2','ž']
 };
 
-// normalize leet by replacing known substitutions with base letters
 function normalizeLeet(text) {
   let normalized = (text || '').toLowerCase();
-  // do replacements from longest subs to shortest to avoid partial collisions
   const subs = [];
   for (const [base, arr] of Object.entries(LEET_MAP)) {
     arr.forEach(s => subs.push({ s, base }));
   }
-  // sort by substitution length desc
   subs.sort((a,b) => b.s.length - a.s.length);
   for (const {s, base} of subs) {
-    // global replace
     normalized = normalized.split(s).join(base);
   }
-  // collapse non-alphanumeric to space for safer contains checks
   normalized = normalized.replace(/[^a-z0-9\s]/g, ' ');
   return normalized;
 }
@@ -55,10 +57,8 @@ function containsBadWord(text) {
   return BAD_WORDS.some(word => norm.includes(word));
 }
 
-// temporary ban map: ip -> expireTimestamp
 const bannedIPs = {};
 
-// helpers
 function clientIp(req) {
   return (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
 }
@@ -74,79 +74,57 @@ function computeStats(votesObj) {
   return { agreeCount, disagreeCount, passCount, agreePct, disagreePct, total };
 }
 
-// Routes
-app.get('/api/ideas', (req, res) => {
-  // return text and computed stats (percentages + counts)
-  const out = ideas.map(i => {
-    const s = computeStats(i.votes);
-    return {
-      text: i.text,
-      agree: s.agreePct,
-      disagree: s.disagreePct,
-      agreeCount: s.agreeCount,
-      disagreeCount: s.disagreeCount,
-      passCount: s.passCount
-    };
-  });
-  res.json(out);
+// Routes for food suggestions
+app.get('/api/food', (req, res) => {
+  res.json(foods);
 });
 
-app.post('/api/ideas', (req, res) => {
+app.post('/api/food', (req, res) => {
   const ip = clientIp(req);
-  // check ban
   if (bannedIPs[ip] && Date.now() < bannedIPs[ip]) {
     return res.status(403).json({ error: 'You are temporarily banned for submitting inappropriate content.' });
   }
   const { text } = req.body || {};
-  if (!text || typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'Invalid idea' });
+  if (!text || typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'Invalid suggestion' });
 
   if (containsBadWord(text)) {
-    // ban for 10 minutes
-    bannedIPs[ip] = Date.now() + 10 * 60 * 1000;
+    bannedIPs[ip] = Date.now() + 10 * 60 * 1000; // 10 minutes
     return res.status(403).json({ error: 'Inappropriate content detected. You are banned for 10 minutes.' });
   }
 
-  ideas.push({ text: text.trim(), votes: {} });
+  foods.push({ text: text.trim(), votes: {} });
   return res.json({ success: true });
 });
 
-app.post('/api/vote', (req, res) => {
+app.post('/api/food/vote', (req, res) => {
   const ip = clientIp(req);
   const { idx, type } = req.body || {};
   if (!Number.isInteger(idx) || !['agree','disagree','pass'].includes(type)) {
     return res.status(400).json({ error: 'Invalid vote' });
   }
-  if (!ideas[idx]) return res.status(404).json({ error: 'Idea not found' });
+  if (!foods[idx]) return res.status(404).json({ error: 'Suggestion not found' });
 
-  // prevent multiple votes from same IP on same idea
-  if (ideas[idx].votes[ip]) {
-    return res.status(409).json({ error: 'Already voted' });
-  }
-  ideas[idx].votes[ip] = type;
-  const s = computeStats(ideas[idx].votes);
+  if (foods[idx].votes[ip]) return res.status(409).json({ error: 'Already voted' });
+
+  foods[idx].votes[ip] = type;
+  const s = computeStats(foods[idx].votes);
   return res.json({ success: true, agree: s.agreePct, disagree: s.disagreePct });
 });
 
-app.post('/api/resetPersonal', (req, res) => {
+app.post('/api/food/resetPersonal', (req, res) => {
   const ip = clientIp(req);
-  ideas.forEach(idea => {
-    if (idea.votes[ip]) delete idea.votes[ip];
+  foods.forEach(item => {
+    if (item.votes[ip]) delete item.votes[ip];
   });
   return res.json({ success: true });
 });
 
-// Optional reset all (admin) - comment out if you don't want an endpoint
-app.post('/api/reset', (req, res) => {
-  ideas.forEach(i => i.votes = {});
-  return res.json({ success: true });
+// Serve /food and /food.html so embeds can use either path
+app.get(['/food', '/food.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'food.html'));
 });
 
-// serve index on root (static files are served from __dirname)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+  console.log(`Food server listening on port ${port}`);
 });
