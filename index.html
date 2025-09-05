@@ -42,34 +42,43 @@
     function renderCuisines() {
       const cuisinesEl = document.getElementById('cuisines');
       let flatIdx = 0;
-      cuisinesEl.innerHTML = Object.entries(restaurantsByCuisine).map(([cuisine, list]) => `
-        <section class="cuisine-section">
-          <div class="cuisine-title">${escapeHtml(cuisine)}</div>
-          <div class="restaurant-grid">
-            ${list.map((r, idx) => {
-              const vote = votesData[flatIdx] || { agree: 0, disagree: 0, pass: 0 };
-              const disabled = vote.voted ? "disabled" : "";
-              const votedMsg = vote.voted ? `<div style="color:#388e3c;font-size:.95em;margin-top:.5em;">You voted</div>` : "";
-              // Use restaurant-card class for styling
-              const html = `
-                <div class="restaurant-card">
-                  <div class="restaurant-name">${escapeHtml(r.name)}</div>
-                  <div class="restaurant-address">${escapeHtml(r.address)}</div>
-                  <div class="vote-row">
-                    <button class="vote-btn agree" ${disabled} onclick="voteRestaurant(${flatIdx}, 'agree')" title="Thumbs up">&#128077;</button>
-                    <span class="vote-count">${vote.agree || 0}</span>
-                    <button class="vote-btn disagree" ${disabled} onclick="voteRestaurant(${flatIdx}, 'disagree')" title="Thumbs down">&#128078;</button>
-                    <span class="vote-count">${vote.disagree || 0}</span>
+      cuisinesEl.innerHTML = Object.entries(restaurantsByCuisine).map(([cuisine, list]) => {
+        // Sort by total votes (agree + disagree + pass) descending
+        const sortedList = list
+          .map((r, idx) => {
+            const vote = votesData[flatIdx + idx] || { agree: 0, disagree: 0, pass: 0 };
+            return { ...r, idx: flatIdx + idx, totalVotes: (vote.agree || 0) + (vote.disagree || 0) + (vote.pass || 0) };
+          })
+          .sort((a, b) => b.totalVotes - a.totalVotes);
+
+        const html = `
+          <section class="cuisine-section">
+            <div class="cuisine-title">${escapeHtml(cuisine)}</div>
+            <div class="restaurant-grid">
+              ${sortedList.map(r => {
+                const vote = votesData[r.idx] || { agree: 0, disagree: 0, pass: 0 };
+                const disabled = vote.voted ? "disabled" : "";
+                const votedMsg = vote.voted ? `<div style="color:#388e3c;font-size:.95em;margin-top:.5em;">You voted</div>` : "";
+                return `
+                  <div class="restaurant-card">
+                    <div class="restaurant-name">${escapeHtml(r.name)}</div>
+                    <div class="restaurant-address">${escapeHtml(r.address)}</div>
+                    <div class="vote-row">
+                      <button class="vote-btn agree" ${disabled} onclick="voteRestaurant(${r.idx}, 'agree')" title="Thumbs up">&#128077;</button>
+                      <span class="vote-count">${vote.agree || 0}</span>
+                      <button class="vote-btn disagree" ${disabled} onclick="voteRestaurant(${r.idx}, 'disagree')" title="Thumbs down">&#128078;</button>
+                      <span class="vote-count">${vote.disagree || 0}</span>
+                    </div>
+                    ${votedMsg}
                   </div>
-                  ${votedMsg}
-                </div>
-              `;
-              flatIdx++;
-              return html;
-            }).join('')}
-          </div>
-        </section>
-      `).join('');
+                `;
+              }).join('')}
+            </div>
+          </section>
+        `;
+        flatIdx += list.length;
+        return html;
+      }).join('');
     }
 
     async function fetchVotes() {
