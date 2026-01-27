@@ -84,12 +84,14 @@
 		border-radius: 14px;
 		padding: 16px 18px;
 		box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-		width: min(420px, 100%);
+		width: 100%;
+		max-width: 420px;
 	}
 
 	.alliance-timeline__image {
 		width: 100%;
-		height: 180px;
+		height: auto;
+		aspect-ratio: 16 / 9;
 		border-radius: 12px;
 		background: #e5e7eb;
 		border: 1px dashed #cbd5f5;
@@ -101,9 +103,11 @@
 		font-size: 13px;
 		font-weight: 600;
 		letter-spacing: 0.04em;
+		overflow: hidden;
 	}
 
 	.alliance-timeline__image img {
+		display: block;
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
@@ -179,6 +183,10 @@
 			left: 8px;
 			transform: none;
 		}
+
+		.alliance-timeline__card {
+			max-width: 100%;
+		}
 	}
 </style>
 
@@ -200,7 +208,9 @@
 		<li class="alliance-timeline__item">
 			<span class="alliance-timeline__dot" aria-hidden="true"></span>
 			<article class="alliance-timeline__card">
-				<div class="alliance-timeline__image">Image placeholder</div>
+				<div class="alliance-timeline__image">
+					<img src="https://images.squarespace-cdn.com/content/68b8bb89c715472d05767a92/6128f41b-28a6-412e-8264-1831973b52dc/History.webp?content-type=image%2Fwebp" alt="Historic warehouse building">
+				</div>
 				<p class="alliance-timeline__date">1920s</p>
 				<h3 class="alliance-timeline__event">A Warehouse for Denver</h3>
 				<p class="alliance-timeline__desc">Merchant Transfer and Storage Company used the building as a warehouse for dry goods arriving or departing by train at Union Station.</p>
