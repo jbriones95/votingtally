@@ -1,0 +1,125 @@
+/**
+ * Tabs Plugin
+ * From Will-Myers.com
+ * Tab Underlines
+**/
+div.wm-tabs {
+  --nav-scrollbar-display: none;
+  --tabs-header-border-bottom-width: 0px;
+
+  --tab-button-active-background: orange;
+  --tab-button-active-color: ~'hsla(var(--wm-accent-hsl), 1)';
+
+  --tab-indicator-track-size: 4px;
+  --tab-indicator-track-background: ~'hsla(var(--wm-text-hsl), 0.15)';
+  --active-indicator-size: 5px;
+  --active-indicator-border-radius: 5px;
+}
+/**
+ * Tabs Plugin
+ * From Will-Myers.com
+ * Equal Width Tabs
+**/
+.wm-tabs[data-navigation-type="horizontal"] {
+  --nav-scrollbar-display: none;
+  --tabs-header-gap: 0px;
+}
+.wm-tabs[data-navigation-type="horizontal"] .tabs-header nav button {
+  flex-grow: 1;
+  flex-basis: ~'calc(100% / var(--tabs-count))';
+}
+div[data-wm-plugin="pricing-table"] {
+  --toggle-width: 220px;
+  --toggle-height: 45px;
+  --toggle-alignment: center;
+  --toggle-spacing: 17px;
+  --toggle-border-radius: 55px;
+  --toggle-border: 2px solid var(--list-section-simple-card-color);
+  --toggle-active-background: var(--list-section-simple-card-color);
+  --toggle-text: black;
+  --toggle-active-text: white;
+  --active-toggle-width: 110px;
+  --active-toggle-height: 35px;
+}
+
+/* --- NAV DROPDOWNS (Squarespace 7.1) --- */
+:root{
+  --nav-bg: #fff;
+  --nav-border: rgba(0,0,0,0.06);
+  --nav-text: #111;
+  --nav-hover-primary: #F89E33;
+  --nav-hover-alt: #65598F;
+  --nav-highlight: var(--nav-hover-primary);
+  --nav-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+/* Toggle highlight color by adding .nav-highlight-alt to body or a parent */
+.nav-highlight-alt{
+  --nav-highlight: var(--nav-hover-alt);
+}
+
+/* Folder trigger */
+.header-nav .header-nav-item--folder > a{
+  transition: color .2s ease;
+}
+
+.header-nav-item--folder{
+  position: relative;
+}
+
+/* Dropdown container */
+.header-nav-folder-content{
+  background: var(--nav-bg);
+  border: 1px solid var(--nav-border);
+  box-shadow: var(--nav-shadow);
+  border-radius: 0;
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  column-gap: 4rem;
+  row-gap: 2.25rem;
+  opacity: 0;
+  transform: translateY(8px) scale(0.985);
+  pointer-events: none;
+  transition: opacity .45s ease, transform .55s cubic-bezier(.2,.8,.2,1);
+  transition-delay: .05s;
+  transform-origin: top center;
+  will-change: opacity, transform;
+}
+
+/* Show on hover/focus */
+.header-nav-item--folder:hover .header-nav-folder-content,
+.header-nav-item--folder:focus-within .header-nav-folder-content{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+/* Dropdown links */
+.header-nav-folder-content a{
+  color: var(--nav-text);
+  padding: 0.15rem 0;
+  border-radius: 0;
+  display: block;
+  transition: color .25s ease, text-decoration-color .25s ease;
+  text-decoration: none;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+/* Hover state */
+.header-nav-folder-content a:hover{
+  color: var(--nav-highlight);
+  text-decoration: underline;
+}
+
+/* Optional: smoother underline for folder label */
+.header-nav-item--folder > a:hover{
+  color: var(--nav-highlight);
+}

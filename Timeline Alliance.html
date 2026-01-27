@@ -1,0 +1,388 @@
+
+<!-- Alliance Center Timeline (Squarespace Embed) -->
+<style>
+	:root {
+		--timeline-bg: #ffffff;
+		--timeline-text: #1f2937;
+		--timeline-muted: #6b7280;
+		--timeline-accent: #65598F;
+		--timeline-line: #e5e7eb;
+		--timeline-card: #f9fafb;
+	}
+
+	.alliance-timeline {
+		font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+		color: var(--timeline-text);
+		background: var(--timeline-bg);
+		padding: 32px 16px;
+		max-width: 900px;
+		margin: 0 auto;
+	}
+
+	.alliance-timeline__header {
+		text-align: center;
+		margin-bottom: 28px;
+	}
+
+	.alliance-timeline__title {
+		font-size: 28px;
+		font-weight: 700;
+		margin: 0 0 6px;
+	}
+
+	.alliance-timeline__subtitle {
+		font-size: 16px;
+		color: var(--timeline-muted);
+		margin: 0;
+	}
+
+	.alliance-timeline__list {
+		position: relative;
+		padding: 0;
+		margin: 0;
+		list-style: none;
+	}
+
+	.alliance-timeline__list::before {
+		content: "";
+		position: absolute;
+		left: 50%;
+		top: 0;
+		bottom: 0;
+		width: 2px;
+		background: var(--timeline-line);
+		transform: translateX(-50%);
+	}
+
+	.alliance-timeline__item {
+		position: relative;
+		display: flex;
+		justify-content: flex-start;
+		margin-bottom: 28px;
+		padding: 0 12px;
+	}
+
+	.alliance-timeline__item:last-child {
+		margin-bottom: 0;
+	}
+
+	.alliance-timeline__dot {
+		position: absolute;
+		left: 50%;
+		top: 18px;
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: var(--timeline-accent);
+		box-shadow: 0 0 0 4px #e8f0ff;
+		transform: translateX(-50%);
+	}
+
+	.alliance-timeline__card {
+		background: var(--timeline-card);
+		border: 1px solid var(--timeline-line);
+		border-radius: 14px;
+		padding: 16px 18px;
+		box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+		width: min(420px, 100%);
+	}
+
+	.alliance-timeline__image {
+		width: 100%;
+		height: 180px;
+		border-radius: 12px;
+		background: #e5e7eb;
+		border: 1px dashed #cbd5f5;
+		margin-bottom: 12px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--timeline-muted);
+		font-size: 13px;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+	}
+
+	.alliance-timeline__image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 12px;
+	}
+
+	.alliance-timeline__date {
+		font-size: 13px;
+		font-weight: 600;
+		color: var(--timeline-accent);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		margin: 0 0 6px;
+	}
+
+	.alliance-timeline__event {
+		font-size: 18px;
+		font-weight: 600;
+		margin: 0 0 8px;
+	}
+
+	.alliance-timeline__desc {
+		font-size: 15px;
+		color: var(--timeline-muted);
+		margin: 0;
+	}
+
+	@media (min-width: 768px) {
+		.alliance-timeline {
+			padding: 48px 24px;
+		}
+
+		.alliance-timeline__title {
+			font-size: 32px;
+		}
+
+		.alliance-timeline__card {
+			padding: 18px 22px;
+		}
+
+		.alliance-timeline__item:nth-child(odd) {
+			justify-content: flex-end;
+			padding-right: 52%;
+			padding-left: 0;
+		}
+
+		.alliance-timeline__item:nth-child(even) {
+			justify-content: flex-start;
+			padding-left: 52%;
+			padding-right: 0;
+		}
+
+		.alliance-timeline__item:nth-child(odd) .alliance-timeline__card {
+			text-align: left;
+		}
+
+		.alliance-timeline__item:nth-child(even) .alliance-timeline__card {
+			text-align: left;
+		}
+	}
+
+	@media (max-width: 767px) {
+		.alliance-timeline__list::before {
+			left: 8px;
+			transform: none;
+		}
+
+		.alliance-timeline__item {
+			padding-left: 28px;
+		}
+
+		.alliance-timeline__dot {
+			left: 8px;
+			transform: none;
+		}
+	}
+</style>
+
+<section class="alliance-timeline">
+
+	<ol class="alliance-timeline__list">
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<div class="alliance-timeline__image">Image placeholder</div>
+				<p class="alliance-timeline__date">Jan 15, 2026</p>
+				<h3 class="alliance-timeline__event">Alliance Center Launch</h3>
+				<p class="alliance-timeline__desc">Website and community hub go live for member onboarding.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<div class="alliance-timeline__image">Image placeholder</div>
+				<p class="alliance-timeline__date">Feb 5, 2026</p>
+				<h3 class="alliance-timeline__event">Orientation & Training</h3>
+				<p class="alliance-timeline__desc">Virtual training sessions for new members and partners.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">1930s–1950s</p>
+				<h3 class="alliance-timeline__event">Gate Rubber Company and Morey Mercantile</h3>
+				<p class="alliance-timeline__desc">The building was owned by Gates Rubber Company as a warehouse. For a time, it leased space to Morey Mercantile (bulging at the seams next door). The Mercantile was the largest grocery business in the West in terms of sales, territory, and number of employees under the brand name Solitaire.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">1960s–1983</p>
+				<h3 class="alliance-timeline__event">A Time of Transition</h3>
+				<p class="alliance-timeline__desc">Following World War II, the lower downtown area went through a slow, steady decline. The number of passenger trains passing through dropped from 80 to two per day. The building sat vacant temporarily before being remodeled into office space.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">1990</p>
+				<h3 class="alliance-timeline__event">A Colorado Institution Moves In</h3>
+				<p class="alliance-timeline__desc">The building was purchased by Joyce Meskis, the owner of the Tattered Cover Bookstore, a Denver institution. From this warehouse location and the building next door, Tattered Cover shipped, received, and warehoused their stock of books. The building was also home to the first official offices of the Wynkoop Brewing Company, owned by John Hickenlooper.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">1997</p>
+				<h3 class="alliance-timeline__event">The Colorado Environmental Coalition Is Born</h3>
+				<p class="alliance-timeline__desc">In 1997, John Powers donated seed money for the Colorado Environmental Coalition (CEC). With funding from CEC and Colorado-based foundations, Powers launched the Alliance for Sustainable Colorado. The Alliance Center was established to house like-minded organizations and foster collaboration. Over the years, Powers expanded the original idea to support more than 50 environmental and social justice organizations at once.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2004</p>
+				<h3 class="alliance-timeline__event">The Alliance for Sustainable Colorado Is Established</h3>
+				<p class="alliance-timeline__desc">In 2004, John Powers, a longtime board member of the Colorado Environmental Coalition, established the Alliance for Sustainable Colorado. The Alliance for Sustainable Colorado was created to advance sustainability through collaboration and to transform sustainability from a concept into a reality. The Alliance Center was established to house like-minded organizations and foster collaboration. Over the years, Powers expanded the original idea to support more than 50 environmental and social justice organizations at once. The Alliance Center also hosts events and programs that allow ideas to be circulated between groups and reduce expenses.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2004</p>
+				<h3 class="alliance-timeline__event">Amendment 37, the Colorado Renewable Energy Requirement, Has Gone into Effect</h3>
+				<p class="alliance-timeline__desc">Voters in Colorado approved Amendment 37 in 2004. This amendment called for utilities to increase the use of renewable energy sources while reducing costs for the consumer. It required investor-owned utilities to obtain at least 3 percent of their electricity from renewable sources by 2007 and required 10 percent generation from renewable energy by 2015.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2005</p>
+				<h3 class="alliance-timeline__event">The Better Building Coalition Is Formed</h3>
+				<p class="alliance-timeline__desc">Staff members from the Alliance for Sustainable Colorado formed the Better Building Coalition to push for improvements standards for publicly owned buildings.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2005</p>
+				<h3 class="alliance-timeline__event">Colorado Office of Energy Management and Conservation Energy Champion Award</h3>
+				<p class="alliance-timeline__desc">The Center received the Energy Champion Award from Colorado Governor Owens’ Office of Energy Management and Conservation for our performance and efforts.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2006</p>
+				<h3 class="alliance-timeline__event">LEED Existing Buildings – Gold</h3>
+				<p class="alliance-timeline__desc">We received the first Alliance’s certification in building operations using what is known as the LEED Existing Buildings rating system. The Alliance Center was awarded Gold certification for energy and environmental performance. LEED (Leadership in Energy and Environmental Design) is a rating system developed by the U.S. Green Building Council (USGBC) for buildings and communities.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2006</p>
+				<h3 class="alliance-timeline__event">USGBC’s National Leadership Award for Education by an Organization</h3>
+				<p class="alliance-timeline__desc">The leadership award celebrates the individuals and organizations that have positively contributed to the evolution of green building and sustainability. We received the award in 2006 for our sustainability tours and green building advocacy.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2007</p>
+				<h3 class="alliance-timeline__event">City of Denver Mayor’s Design Award: It Ain’t Easy Being Green</h3>
+				<p class="alliance-timeline__desc">These community design awards recognize the city for achievements in architecture, urban design and place-making. The Alliance Center was selected for efforts using and promoting green building practices.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2008</p>
+				<h3 class="alliance-timeline__event">The Big Tent</h3>
+				<p class="alliance-timeline__desc">Envisioned by John Powers, Michael Northrop (Rockefeller Brothers Fund), and Bill Becker (Presidential Climate Action Project), the Big Tent was a national event held at the Alliance Center during the 2008 Democratic National Convention. The Big Tent was a collaboration between the Alliance and several organizations, including Google, Digg, Daily Kos, and the Huffington Post. The event provided a space for bloggers, journalists, and political leaders to discuss sustainability and climate change. The Big Tent was a major milestone for the Alliance Center and helped to establish it as a hub for sustainability and innovation. The Big Tent was also a model for future events and collaborations.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2008</p>
+				<h3 class="alliance-timeline__event">Environmental Leadership Program Gold Leader</h3>
+				<p class="alliance-timeline__desc">Awarded by the Colorado Department of Public Health and Environment, the Gold Leader status recognizes organizations that demonstrate outstanding environmental achievements. The Alliance Center earned Gold Leader status in 2008 for our sustainability efforts.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2008</p>
+				<h3 class="alliance-timeline__event">Wirth Chair Pioneer of the New Energy Economy Award</h3>
+				<p class="alliance-timeline__desc">Founder John Powers received the Wirth Chair Pioneer of the New Energy Economy Award.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2008</p>
+				<h3 class="alliance-timeline__event">10 Best Bet Awards</h3>
+				<p class="alliance-timeline__desc">The Alliance Center received an award as one of the Best Bets for Going Green.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2011</p>
+				<h3 class="alliance-timeline__event">LEED Existing Buildings V2009 Gold Recertification</h3>
+				<p class="alliance-timeline__desc">The Alliance Center achieved LEED Gold recertification.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2012</p>
+				<h3 class="alliance-timeline__event">City of Denver’s Showcase Project with the Department of Energy’s Better Building Challenge</h3>
+				<p class="alliance-timeline__desc">The Alliance Center’s nomination from the City of Denver was accepted by the U.S. Department of Energy for the Better Buildings Challenge. As part of the challenge, the Alliance Center committed to reducing energy consumption by at least 20 percent over 10 years. Our team exceeded that goal and reduced our energy consumption by over 30 percent.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2017</p>
+				<h3 class="alliance-timeline__event">LEED v4 Existing Buildings Operations + Maintenance Platinum</h3>
+				<p class="alliance-timeline__desc">The Center was the first building in Colorado to achieve Platinum certification under LEED v4, a version of LEED for existing buildings.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2019</p>
+				<h3 class="alliance-timeline__event">WELL Health-Safety Rating Achieved</h3>
+				<p class="alliance-timeline__desc">The Center achieved a WELL Health-Safety Rating for our commitment to occupant wellness.</p>
+			</article>
+		</li>
+
+		<li class="alliance-timeline__item">
+			<span class="alliance-timeline__dot" aria-hidden="true"></span>
+			<article class="alliance-timeline__card">
+				<p class="alliance-timeline__date">2023</p>
+				<h3 class="alliance-timeline__event">Restored Patio and Unveiled the Green Waves Garden</h3>
+				<p class="alliance-timeline__desc">Thanks to enthusiastic donors, The Center upgraded the patio to be more functional and welcoming. The patio now features a stage, seating, and a Green Waves Garden. The garden is a demonstration of regenerative urban agriculture and includes native plants, pollinator habitats, and edible perennials. The Green Waves Garden is a collaboration between The Alliance Center and local organizations. The garden is designed to educate visitors about sustainable agriculture and provide a space for relaxation, beauty, and pollinators.</p>
+			</article>
+		</li>
+	</ol>
+</section>
