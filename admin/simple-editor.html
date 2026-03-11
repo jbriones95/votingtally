@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Visual Editor</title>
+  <link rel="stylesheet" href="/admin/simple-editor.css">
+</head>
+<body>
+  <main class="wrap">
+    <h1>Simple Visual Editor</h1>
+    <div class="top">
+      <label>Admin token <input id="token" type="password" placeholder="paste token"></label>
+      <label>File <input id="file" value="site-configs/Alliance.json"></label>
+      <button id="load">Load</button>
+      <button id="save">Save</button>
+      <a id="preview" href="/Alliance_simple.html" target="_blank">Open Preview</a>
+    </div>
+
+    <section id="colors">
+      <h2>Colors</h2>
+      <div id="colorsForm"></div>
+    </section>
+
+    <section id="sections">
+      <h2>Items</h2>
+      <div id="sectionsForm"></div>
+    </section>
+
+    <div id="status"></div>
+  </main>
+  <script src="/admin/simple-editor.js"></script>
+</body>
+</html>

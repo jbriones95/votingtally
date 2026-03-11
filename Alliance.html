@@ -464,3 +464,231 @@
     }
   }
 </style>
+
+<!-- Client-side visual editor (password gated, localStorage only) -->
+<script>
+/* Client-only visual editor with simple admin password gating.
+   - Edit colors, texts, images in-page
+   - Persists changes to localStorage (no server)
+   - Change ADMIN_PASSWORD below before deploying if desired
+*/
+(function(){
+  const ADMIN_PASSWORD = 'changeme'; // change this
+  const UNLOCK_KEY = 'simple_editor_unlocked_v1';
+  const STORAGE_KEY = 'simple_page_editor_v1';
+
+  const css = `
+  #s_editor_btn{position:fixed;right:18px;bottom:18px;z-index:999999;background:#F89E33;color:#111;padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:700;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  #s_pw_modal,#s_editor_modal{position:fixed;inset:0;background:rgba(2,6,23,.65);display:flex;align-items:center;justify-content:center;z-index:999998;padding:28px}
+  #s_pw_panel,#s_editor_panel{width:100%;max-width:980px;background:#02101a;border-radius:10px;padding:16px;color:#e6eef8;box-shadow:0 24px 80px rgba(0,0,0,.6);position:relative;font-family:system-ui,Segoe UI,Arial,sans-serif}
+  #s_pw_panel h3{margin:0 0 10px}
+  .s_top{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+  .s_btn{padding:8px 10px;border-radius:6px;border:none;cursor:pointer}
+  #s_apply{background:#4ade80;color:#06201a;font-weight:700}
+  #s_close{position:absolute;right:12px;top:12px;background:transparent;border:none;color:#9fb0c8;font-size:20px;cursor:pointer}
+  #s_body{display:flex;gap:12px}
+  #s_sidebar{width:300px;max-height:72vh;overflow:auto}
+  #s_main{flex:1;max-height:72vh;overflow:auto}
+  label{display:block;font-size:13px;color:#9fb0c8;margin-bottom:6px}
+  input[type=color]{height:36px;padding:0;border-radius:6px;border:1px solid rgba(255,255,255,0.04)}
+  .s_item{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;margin-bottom:8px}
+  .s_row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+  .s_row label{flex:1;font-size:13px;color:#cbd8e6}
+  .s_row input[type=text],.s_row input[type=url]{flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+  #s_status{margin-top:8px;color:#9fb0c8}
+  #s_export{width:100%;height:120px;font-family:monospace;padding:8px;border-radius:6px;background:#00121a;color:#e6eef8;border:1px solid rgba(255,255,255,0.03);resize:vertical}
+  `;
+  const st = document.createElement('style'); st.appendChild(document.createTextNode(css)); document.head.appendChild(st);
+
+  const btn = document.createElement('button'); btn.id = 's_editor_btn'; btn.textContent = 'Edit Page'; document.body.appendChild(btn);
+  btn.addEventListener('click', onEditClick);
+
+  function onEditClick(){
+    if(!ADMIN_PASSWORD || localStorage.getItem(UNLOCK_KEY) === '1') { openEditor(); }
+    else { showPasswordPrompt(); }
+  }
+
+  function showPasswordPrompt(){
+    const modal = document.createElement('div'); modal.id='s_pw_modal';
+    const panel = document.createElement('div'); panel.id='s_pw_panel';
+    panel.innerHTML = `
+      <button id="s_close_pw">✕</button>
+      <h3>Enter Admin Password</h3>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="s_pw_input" type="password" placeholder="password" style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit">
+        <button id="s_pw_unlock" class="s_btn" style="background:#4ade80;color:#06201a">Unlock</button>
+      </div>
+      <div style="margin-top:8px"><label style="color:#9fb0c8"><input id="s_pw_rem" type="checkbox"> Remember on this device</label></div>
+      <div id="s_pw_status" style="margin-top:8px;color:#9fb0c8"></div>
+    `;
+    modal.appendChild(panel); document.body.appendChild(modal);
+    panel.querySelector('#s_close_pw').addEventListener('click', ()=> modal.remove());
+    panel.querySelector('#s_pw_unlock').addEventListener('click', () => {
+      const val = panel.querySelector('#s_pw_input').value || '';
+      const rem = panel.querySelector('#s_pw_rem').checked;
+      if(val === ADMIN_PASSWORD) { if(rem) localStorage.setItem(UNLOCK_KEY, '1'); modal.remove(); openEditor(); }
+      else { panel.querySelector('#s_pw_status').textContent = 'Wrong password'; panel.querySelector('#s_pw_status').style.color = '#f19a9a'; }
+    });
+    panel.querySelector('#s_pw_input').addEventListener('keydown', (e)=> { if(e.key === 'Enter') panel.querySelector('#s_pw_unlock').click(); });
+  }
+
+  function openEditor(){
+    const modal = document.createElement('div'); modal.id='s_editor_modal';
+    const panel = document.createElement('div'); panel.id='s_editor_panel';
+    panel.innerHTML = `
+      <button id="s_close">✕</button>
+      <h2>Quick Visual Editor</h2>
+      <div class="s_top">
+        <button id="s_apply" class="s_btn">Apply All</button>
+        <button id="s_save" class="s_btn">Save (local)</button>
+        <button id="s_load" class="s_btn">Load (local)</button>
+        <button id="s_reset" class="s_btn">Reset</button>
+        <button id="s_download" class="s_btn">Download JSON</button>
+        <button id="s_export_btn" class="s_btn">Export JSON</button>
+        <button id="s_import_btn" class="s_btn">Import JSON</button>
+        <input id="s_upload" type="file" accept="application/json" style="display:none">
+        <a id="s_preview" href="#" target="_blank" style="margin-left:auto;color:#9fb0c8">Open Page</a>
+      </div>
+      <div id="s_body">
+        <div id="s_sidebar">
+          <h3>Colors</h3>
+          <div id="s_colors"></div>
+          <h3>Export / Import</h3>
+          <textarea id="s_export" placeholder="Export JSON..."></textarea>
+        </div>
+        <div id="s_main">
+          <h3>Page Items</h3>
+          <div id="s_items"></div>
+        </div>
+      </div>
+      <div id="s_status"></div>
+    `;
+    modal.appendChild(panel); document.body.appendChild(modal);
+    panel.querySelector('#s_close').addEventListener('click', ()=> modal.remove());
+    modal.addEventListener('click', (e)=> { if(e.target===modal) modal.remove(); });
+
+    const itemsRoot = panel.querySelector('#s_items');
+    const colorsRoot = panel.querySelector('#s_colors');
+    const status = panel.querySelector('#s_status');
+    const exportArea = panel.querySelector('#s_export');
+    panel.querySelector('#s_preview').href = location.href;
+
+    const colorVars = {
+      '--bg':'#1f1f1f', '--text':'#ffffff', '--accent':'#F89E33', '--accent-dark':'#D9801F', '--hover-bg':'#fafafa', '--hover-text':'#000000'
+    };
+
+    function scanItems(){
+      const rows = Array.from(document.querySelectorAll('.pricing-row'));
+      if(rows.length === 0){
+        const h3s = Array.from(document.querySelectorAll('h3'));
+        return h3s.map(h => {
+          const container = h.closest('div') || h.parentElement;
+          const desc = container.querySelector('p') || container.querySelector('span');
+          const price = container.querySelector('.price') || null;
+          const cta = container.querySelector('a') || null;
+          const img = container.querySelector('img') || null;
+          return {el:container,titleEl:h,descEl:desc,priceEl:price,ctaEl:cta,imgEl:img};
+        });
+      }
+      return rows.map(row => {
+        const title = row.querySelector('h3') || row.querySelector('h2') || null;
+        const desc = row.querySelector('p') || row.querySelector('span') || null;
+        const price = row.querySelector('.price') || null;
+        const cta = row.querySelector('a') || null;
+        const img = row.querySelector('img') || null;
+        return {el:row,titleEl:title,descEl:desc,priceEl:price,ctaEl:cta,imgEl:img};
+      });
+    }
+
+    function buildColors(){
+      colorsRoot.innerHTML='';
+      Object.keys(colorVars).forEach(k=>{
+        const cur = getComputedStyle(document.documentElement).getPropertyValue(k).trim() || colorVars[k];
+        const row = document.createElement('div'); row.className='s_row';
+        const label = document.createElement('label'); label.textContent = k;
+        const inp = document.createElement('input'); inp.type='color'; inp.value = rgbToHex(cur) || colorVars[k]; inp.dataset.var=k;
+        row.appendChild(label); row.appendChild(inp); colorsRoot.appendChild(row);
+        inp.addEventListener('input', ()=> document.documentElement.style.setProperty(k, inp.value));
+      });
+    }
+
+    function buildItems(){
+      itemsRoot.innerHTML='';
+      const items = scanItems();
+      if(items.length===0){ itemsRoot.innerHTML='<div style="opacity:.8">No recognizable items found.</div>'; return; }
+      items.forEach((it,idx)=>{
+        const box = document.createElement('div'); box.className='s_item';
+        const header = document.createElement('div'); header.style.fontWeight=700; header.style.marginBottom='6px';
+        header.textContent = (it.titleEl && it.titleEl.textContent) ? it.titleEl.textContent : ('Item '+(idx+1));
+        box.appendChild(header);
+        box.appendChild(rowEl('Title','title', it.titleEl && it.titleEl.textContent || ''));
+        box.appendChild(rowEl('Description','desc', it.descEl && it.descEl.textContent || ''));
+        box.appendChild(rowEl('Price','price', it.priceEl && it.priceEl.textContent || ''));
+        box.appendChild(rowEl('Button text','cta', it.ctaEl && it.ctaEl.textContent || ''));
+        box.appendChild(rowEl('Image URL','img', it.imgEl && it.imgEl.src || ''));
+        const applyBtn = document.createElement('button'); applyBtn.className='s_btn'; applyBtn.textContent='Apply'; applyBtn.addEventListener('click', ()=> applyItem(it, box));
+        box.appendChild(applyBtn);
+        itemsRoot.appendChild(box);
+      });
+      function rowEl(labelText, field, value){ const r = document.createElement('div'); r.className='s_row'; r.innerHTML = `<label>${labelText}</label><input type="${field==='img'?'url':'text'}" data-field="${field}" value="${escapeHtml(value)}">`; return r; }
+    }
+
+    function applyItem(it, box){
+      try{
+        const titleVal = box.querySelector('input[data-field="title"]').value;
+        const descVal = box.querySelector('input[data-field="desc"]').value;
+        const priceVal = box.querySelector('input[data-field="price"]').value;
+        const ctaVal = box.querySelector('input[data-field="cta"]').value;
+        const imgVal = box.querySelector('input[data-field="img"]').value;
+        if(it.titleEl) it.titleEl.textContent = titleVal;
+        if(it.descEl) it.descEl.textContent = descVal;
+        if(it.priceEl) it.priceEl.textContent = priceVal;
+        if(it.ctaEl) it.ctaEl.textContent = ctaVal;
+        if(it.imgEl && imgVal) it.imgEl.src = imgVal;
+        setStatus('Item applied');
+      }catch(e){ setStatus('Apply failed: '+e.message,false); }
+    }
+
+    function applyAll(){
+      const boxes = Array.from(itemsRoot.querySelectorAll('.s_item'));
+      const scanned = scanItems();
+      boxes.forEach((box, i) => { const it = scanned[i]; if(it) applyItem(it, box); });
+      colorsRoot.querySelectorAll('input[type=color]').forEach(inp => document.documentElement.style.setProperty(inp.dataset.var, inp.value));
+      setStatus('Applied to page');
+    }
+
+    function buildSnapshot(){
+      const colors = {}; colorsRoot.querySelectorAll('input[type=color]').forEach(i=> colors[i.dataset.var]=i.value);
+      const items = []; Array.from(itemsRoot.querySelectorAll('.s_item')).forEach(box=>{ items.push({ title: box.querySelector('input[data-field="title"]').value, description: box.querySelector('input[data-field="desc"]').value, price: box.querySelector('input[data-field="price"]').value, cta: box.querySelector('input[data-field="cta"]').value, image: box.querySelector('input[data-field="img"]').value }); });
+      return {colors, items};
+    }
+
+    function saveLocal(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(buildSnapshot())); setStatus('Saved to browser (localStorage).'); }
+    function loadLocal(){ const raw = localStorage.getItem(STORAGE_KEY); if(!raw){ setStatus('No saved data', false); return; } try{ const data = JSON.parse(raw); Object.keys(data.colors||{}).forEach(k=>{ let inp = colorsRoot.querySelector('input[data-var="'+k+'"]'); if(!inp){ const row = document.createElement('div'); row.className='s_row'; const label = document.createElement('label'); label.textContent = k; inp = document.createElement('input'); inp.type='color'; inp.value = data.colors[k]; inp.dataset.var=k; row.appendChild(label); row.appendChild(inp); colorsRoot.appendChild(row); inp.addEventListener('input', ()=> document.documentElement.style.setProperty(k, inp.value)); } else inp.value = data.colors[k]; document.documentElement.style.setProperty(k, data.colors[k]); }); const boxes = Array.from(itemsRoot.querySelectorAll('.s_item')); (data.items||[]).forEach((it,i)=>{ const box = boxes[i]; if(!box) return; box.querySelector('input[data-field="title"]').value = it.title||''; box.querySelector('input[data-field="desc"]').value = it.description||''; box.querySelector('input[data-field="price"]').value = it.price||''; box.querySelector('input[data-field="cta"]').value = it.cta||''; box.querySelector('input[data-field="img"]').value = it.image||''; }); setStatus('Loaded from localStorage'); }catch(e){ setStatus('Load failed: '+e.message,false); } }
+
+    function exportJSON(){ exportArea.value = JSON.stringify(buildSnapshot(), null, 2); setStatus('Export ready'); }
+    function importJSON(){ try{ const text = exportArea.value.trim(); if(!text){ setStatus('Paste JSON into the box', false); return; } const data = JSON.parse(text); Object.keys(data.colors||{}).forEach(k=>{ let inp = colorsRoot.querySelector('input[data-var="'+k+'"]'); if(!inp){ const row = document.createElement('div'); row.className='s_row'; const label = document.createElement('label'); label.textContent = k; inp = document.createElement('input'); inp.type='color'; inp.value = data.colors[k]; inp.dataset.var=k; row.appendChild(label); row.appendChild(inp); colorsRoot.appendChild(row); inp.addEventListener('input', ()=> document.documentElement.style.setProperty(k, inp.value)); } else inp.value = data.colors[k]; document.documentElement.style.setProperty(k, data.colors[k]); }); const boxes = Array.from(itemsRoot.querySelectorAll('.s_item')); (data.items||[]).forEach((it,i)=>{ const box = boxes[i]; if(!box) return; box.querySelector('input[data-field="title"]').value = it.title||''; box.querySelector('input[data-field="desc"]').value = it.description||''; box.querySelector('input[data-field="price"]').value = it.price||''; box.querySelector('input[data-field="cta"]').value = it.cta||''; box.querySelector('input[data-field="img"]').value = it.image||''; }); setStatus('Imported JSON into editor (click Apply All)'); }catch(e){ setStatus('Import failed: '+e.message,false); } }
+
+    function downloadJSON(){ const data = JSON.stringify(buildSnapshot(), null, 2); const blob = new Blob([data], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'page-export.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); setStatus('Downloaded JSON file'); }
+    function uploadHandler(file){ const reader = new FileReader(); reader.onload = ()=> { try{ const data = JSON.parse(reader.result); panel.querySelector('#s_export').value = JSON.stringify(data, null, 2); importJSON(); } catch(e){ setStatus('Upload parse error: '+e.message,false); } }; reader.readAsText(file); }
+    function resetAll(){ if(!confirm('Reset and clear saved data?')) return; localStorage.removeItem(STORAGE_KEY); location.reload(); }
+    function setStatus(msg, ok=true){ status.textContent = msg; status.style.color = ok? '#9fd19f':'#f19a9a'; }
+
+    panel.querySelector('#s_apply').addEventListener('click', applyAll);
+    panel.querySelector('#s_save').addEventListener('click', saveLocal);
+    panel.querySelector('#s_load').addEventListener('click', loadLocal);
+    panel.querySelector('#s_export_btn').addEventListener('click', exportJSON);
+    panel.querySelector('#s_import_btn').addEventListener('click', importJSON);
+    panel.querySelector('#s_download').addEventListener('click', downloadJSON);
+    panel.querySelector('#s_reset').addEventListener('click', resetAll);
+    const uploadInput = panel.querySelector('#s_upload');
+    uploadInput.addEventListener('change', e=> { if(e.target.files && e.target.files[0]) uploadHandler(e.target.files[0]); });
+
+    buildColors(); buildItems(); setStatus('Editor ready — edit and click Apply All. Save to keep in your browser.');
+  }
+
+  function rgbToHex(v){ if(!v) return null; v=v.trim(); if(v[0]==='#') return v; const m=v.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i); if(!m) return null; return '#'+[1,2,3].map(i=>('0'+parseInt(m[i],10).toString(16)).slice(-2)).join(''); }
+  function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+})();
+</script>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Alliance — Simple</title>
+  <style>
+    :root{ --bg:#1f1f1f; --text:#fff; --accent:#F89E33; --accent-dark:#D9801F; }
+    body{background:var(--bg);color:var(--text);font-family:Georgia,serif;padding:24px}
+    .wrap{max-width:1100px;margin:0 auto}
+    .pricing-row{display:flex;gap:1rem;align-items:center;justify-content:space-between;padding:16px;border:1px solid rgba(255,255,255,0.06);border-radius:6px;background:transparent;margin-bottom:12px}
+    .pricing-content{flex:1}
+    .pricing-right{text-align:right;min-width:180px}
+    .price{color:var(--accent);font-weight:700;font-size:1.4rem}
+    .cta{display:inline-block;padding:8px 12px;background:var(--accent);color:#111;border-radius:6px;text-decoration:none;font-weight:700}
+    img.thumb{width:140px;height:140px;object-fit:cover;border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 id="pageTitle">Alliance</h1>
+    <div id="list"></div>
+  </div>
+
+  <script>
+    async function load() {
+      const res = await fetch('/site-configs/Alliance.json');
+      const cfg = await res.json();
+      const root = document.documentElement.style;
+      if (cfg.colors) {
+        Object.keys(cfg.colors).forEach(k => {
+          try { root.setProperty('--' + k.replace(/([A-Z])/g,'-$1').toLowerCase(), cfg.colors[k]); } catch(e){}
+        });
+      }
+      const list = document.getElementById('list');
+      list.innerHTML = '';
+      cfg.sections.forEach(s => {
+        const row = document.createElement('div'); row.className = 'pricing-row';
+        const left = document.createElement('div'); left.className='pricing-content';
+        left.innerHTML = `<h3>${s.title}</h3><p style="opacity:0.85">${s.description}</p>`;
+        const imgWrap = document.createElement('div'); imgWrap.style.margin='0 12px'; imgWrap.innerHTML = `<img class="thumb" src="${s.image}" alt="${s.title}">`;
+        const right = document.createElement('div'); right.className='pricing-right'; right.innerHTML = `<div style="font-size:0.7rem;color:#bbb">Starting at</div><div class="price">${s.price}</div><div style="margin-top:8px"><a class="cta" href="#">${s.cta}</a></div>`;
+        row.appendChild(left); row.appendChild(imgWrap); row.appendChild(right);
+        list.appendChild(row);
+      });
+    }
+    load().catch(e=>{console.error(e);document.getElementById('list').textContent='Failed to load content.'});
+  </script>
+</body>
+</html>

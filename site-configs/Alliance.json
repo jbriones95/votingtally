@@ -1,0 +1,60 @@
+{
+  "colors": {
+    "accent": "#F89E33",
+    "accentDark": "#D9801F",
+    "bg": "#1f1f1f",
+    "text": "#ffffff",
+    "hoverBg": "#fafafa",
+    "hoverText": "#000000"
+  },
+  "sections": [
+    {
+      "id": "dayPass",
+      "title": "Day Pass",
+      "description": "One-day access to our coworking space. Includes high-speed WiFi, community events, and ergonomic seating.",
+      "price": "$35",
+      "cta": "Come for a Day!",
+      "image": "https://images.squarespace-cdn.com/content/68b8bb89c715472d05767a92/1766778805777-SOXRYMVHE1AOZXVPGFRZ/TheAllianceCenterLobby.webp?content-type=image%2Fwebp"
+    },
+    {
+      "id": "punchPass",
+      "title": "Punch Pass",
+      "description": "5-day pack for flexible workers who visit occasionally. Use across any location during business hours.",
+      "price": "$30",
+      "cta": "Punch One or Two",
+      "image": "https://images.squarespace-cdn.com/content/68b8bb89c715472d05767a92/f545186e-318e-4ede-8167-6d5b4b73644d/TheAllianceCenter_TruBluImages-14.jpg?content-type=image%2Fjpeg"
+    },
+    {
+      "id": "flexDesk",
+      "title": "Flex Desk",
+      "description": "Unlimited access to open seating with priority seating options, mail handling, and member perks.",
+      "price": "$250/mo",
+      "cta": "Flex Your Workday",
+      "image": "https://images.squarespace-cdn.com/content/68b8bb89c715472d05767a92/2f38a7e4-c5a5-4928-8836-3211879650aa/TheAllianceCenterRoom.jpg?content-type=image%2Fjpeg"
+    },
+    {
+      "id": "privateOffice",
+      "title": "Private Office",
+      "description": "Move-in ready private offices with ergonomic furniture. Ideal for 1–6 people, customizable layouts available.",
+      "price": "$1,050/mo",
+      "cta": "Your Office. Your Oasis.",
+      "image": "https://images.squarespace-cdn.com/content/68b8bb89c715472d05767a92/2f38a7e4-c5a5-4928-8836-3211879650aa/TheAllianceCenterRoom.jpg?content-type=image%2Fjpeg"
+    },
+    {
+      "id": "teamSuite",
+      "title": "Team Suite",
+      "description": "Larger dedicated suites for growing teams — fully furnished with dedicated meeting rooms and support services.",
+      "price": "Long term contract",
+      "cta": "Room for Big Ideas.",
+      "image": "https://images.squarespace-cdn.com/content/68b8bb89c715472d05767a92/1766778806771-BO85EIB3PM361BTCPGWZ/AllianceCenter16231-Edit-scaled.jpg?content-type=image%2Fjpeg"
+    },
+    {
+      "id": "virtualOffice",
+      "title": "Virtual Office",
+      "description": "Professional business address and mail handling to give your business a presence without a physical office.",
+      "price": "$100/mo",
+      "cta": "Look Local. Work Global.",
+      "image": "https://images.squarespace-cdn.com/content/68b8bb89c715472d05767a92/8284f708-979e-4e54-ace0-009e11276606/TheAllianceCenter_TruBluImages-18-scaled.jpg?content-type=image%2Fjpeg"
+    }
+  ]
+}

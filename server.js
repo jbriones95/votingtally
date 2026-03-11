@@ -6,6 +6,64 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.static(__dirname));
+const fs = require('fs');
+
+// Admin token (set via environment variable). Default is insecure; set a real token in production.
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'changeme';
+
+// Serve a tiny admin UI at /admin
+app.use('/admin', express.static(path.join(__dirname, 'admin')));
+
+function requireAdmin(req, res, next) {
+  const token = (req.headers['x-admin-token'] || req.query.token || '').toString();
+  if (token !== ADMIN_TOKEN) return res.status(401).json({ error: 'Unauthorized' });
+  next();
+}
+
+// Read a file (within project dir). Query: ?file=Alliance.html
+app.get('/api/admin/file', requireAdmin, (req, res) => {
+  const fileName = req.query.file;
+  if (!fileName || typeof fileName !== 'string') return res.status(400).json({ error: 'Missing file parameter' });
+  const safePath = path.normalize(path.join(__dirname, fileName));
+  if (!safePath.startsWith(path.normalize(__dirname + path.sep))) return res.status(400).json({ error: 'Invalid file' });
+  fs.readFile(safePath, 'utf8', (err, data) => {
+    if (err) return res.status(500).json({ error: 'Read failed', details: err.message });
+    res.json({ file: fileName, content: data });
+  });
+});
+
+// Write a file. Body: { file: 'Alliance.html', content: '...' }
+app.post('/api/admin/file', requireAdmin, (req, res) => {
+  const { file, content } = req.body || {};
+  if (!file || typeof file !== 'string') return res.status(400).json({ error: 'Missing file name' });
+  if (typeof content !== 'string') return res.status(400).json({ error: 'Missing content' });
+  const safePath = path.normalize(path.join(__dirname, file));
+  if (!safePath.startsWith(path.normalize(__dirname + path.sep))) return res.status(400).json({ error: 'Invalid file' });
+  // Ensure backups directory exists and create a timestamped backup of the current file
+  try {
+    const backupsDir = path.join(__dirname, 'backups');
+    fs.mkdirSync(backupsDir, { recursive: true });
+    if (fs.existsSync(safePath)) {
+      const now = new Date();
+      const stamp = now.toISOString().replace(/[:.]/g, '-');
+      const backupName = `${path.basename(file)}.${stamp}.bak`;
+      const backupPath = path.join(backupsDir, backupName);
+      try {
+        fs.copyFileSync(safePath, backupPath);
+      } catch (copyErr) {
+        // non-fatal: continue to write, but log
+        console.warn('Backup copy failed:', copyErr && copyErr.message);
+      }
+    }
+  } catch (bkErr) {
+    console.warn('Backup setup failed:', bkErr && bkErr.message);
+  }
+
+  fs.writeFile(safePath, content, 'utf8', (err) => {
+    if (err) return res.status(500).json({ error: 'Write failed', details: err.message });
+    res.json({ success: true, file });
+  });
+});
 
 // In-memory storage for food suggestions (replace ideas with restaurants)
 const restaurantsByCuisine = {
