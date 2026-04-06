@@ -473,8 +473,7 @@
    - Change ADMIN_PASSWORD below before deploying if desired
 */
 (function(){
-  const ADMIN_PASSWORD = 'changeme'; // change this
-  const UNLOCK_KEY = 'simple_editor_unlocked_v1';
+  const ADMIN_PASSWORD = '';
   const STORAGE_KEY = 'simple_page_editor_v1';
 
   const css = `
@@ -503,34 +502,52 @@
   const btn = document.createElement('button'); btn.id = 's_editor_btn'; btn.textContent = 'Edit Page'; document.body.appendChild(btn);
   btn.addEventListener('click', onEditClick);
 
-  function onEditClick(){
-    if(!ADMIN_PASSWORD || localStorage.getItem(UNLOCK_KEY) === '1') { openEditor(); }
-    else { showPasswordPrompt(); }
-  }
+  function onEditClick(){ openEditor(); }
 
-  function showPasswordPrompt(){
-    const modal = document.createElement('div'); modal.id='s_pw_modal';
-    const panel = document.createElement('div'); panel.id='s_pw_panel';
-    panel.innerHTML = `
-      <button id="s_close_pw">✕</button>
-      <h3>Enter Admin Password</h3>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input id="s_pw_input" type="password" placeholder="password" style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit">
-        <button id="s_pw_unlock" class="s_btn" style="background:#4ade80;color:#06201a">Unlock</button>
-      </div>
-      <div style="margin-top:8px"><label style="color:#9fb0c8"><input id="s_pw_rem" type="checkbox"> Remember on this device</label></div>
-      <div id="s_pw_status" style="margin-top:8px;color:#9fb0c8"></div>
-    `;
-    modal.appendChild(panel); document.body.appendChild(modal);
-    panel.querySelector('#s_close_pw').addEventListener('click', ()=> modal.remove());
-    panel.querySelector('#s_pw_unlock').addEventListener('click', () => {
-      const val = panel.querySelector('#s_pw_input').value || '';
-      const rem = panel.querySelector('#s_pw_rem').checked;
-      if(val === ADMIN_PASSWORD) { if(rem) localStorage.setItem(UNLOCK_KEY, '1'); modal.remove(); openEditor(); }
-      else { panel.querySelector('#s_pw_status').textContent = 'Wrong password'; panel.querySelector('#s_pw_status').style.color = '#f19a9a'; }
-    });
-    panel.querySelector('#s_pw_input').addEventListener('keydown', (e)=> { if(e.key === 'Enter') panel.querySelector('#s_pw_unlock').click(); });
-  }
+  // Apply saved configs on load so edits persist across reloads
+  (function applySavedIfAny(){
+    try{
+      const root = document.documentElement.style;
+      const def = localStorage.getItem('alliance-default-config');
+      if(def){
+        const obj = JSON.parse(def);
+        if(obj.styles){
+          Object.keys(obj.styles).forEach(k=>{
+            const name = k.startsWith('--') ? k : ('--'+k);
+            try{ root.setProperty(name, obj.styles[k]); }catch(e){}
+          });
+        }
+        if(obj.timeline && Array.isArray(obj.timeline)){
+          const rows = Array.from(document.querySelectorAll('.pricing-row'));
+          obj.timeline.forEach((it, i)=>{
+            const row = rows[i]; if(!row) return;
+            const titleEl = row.querySelector('h3'); if(titleEl) titleEl.textContent = it.event || it.title || titleEl.textContent;
+            const descEl = row.querySelector('p'); if(descEl) descEl.textContent = it.desc || it.description || descEl.textContent;
+            const priceEl = row.querySelector('.price'); if(priceEl) priceEl.textContent = it.price || priceEl.textContent;
+            const ctaEl = row.querySelector('.cta'); if(ctaEl) ctaEl.textContent = (it.cta || ctaEl.textContent);
+            const imgEl = row.querySelector('img'); if(imgEl && (it.imgSrc||it.image)) imgEl.src = it.imgSrc||it.image;
+          });
+          return;
+        }
+      }
+      const snap = localStorage.getItem('simple_page_editor_v1');
+      if(snap){
+        const data = JSON.parse(snap);
+        if(data.colors){ Object.keys(data.colors).forEach(k=>{ try{ document.documentElement.style.setProperty(k, data.colors[k]); }catch(e){} }); }
+        if(data.items && Array.isArray(data.items)){
+          const rows = Array.from(document.querySelectorAll('.pricing-row'));
+          data.items.forEach((it,i)=>{
+            const row = rows[i]; if(!row) return;
+            const titleEl = row.querySelector('h3'); if(titleEl) titleEl.textContent = it.title || titleEl.textContent;
+            const descEl = row.querySelector('p'); if(descEl) descEl.textContent = it.description || descEl.textContent;
+            const priceEl = row.querySelector('.price'); if(priceEl) priceEl.textContent = it.price || priceEl.textContent;
+            const ctaEl = row.querySelector('.cta'); if(ctaEl) ctaEl.textContent = it.cta || ctaEl.textContent;
+            const imgEl = row.querySelector('img'); if(imgEl && it.image) imgEl.src = it.image;
+          });
+        }
+      }
+    }catch(e){ /* ignore */ }
+  })();
 
   function openEditor(){
     const modal = document.createElement('div'); modal.id='s_editor_modal';
@@ -576,6 +593,54 @@
     const colorVars = {
       '--bg':'#1f1f1f', '--text':'#ffffff', '--accent':'#F89E33', '--accent-dark':'#D9801F', '--hover-bg':'#fafafa', '--hover-text':'#000000'
     };
+
+    // Apply saved configs (from timeline editor or simple editor) so edits persist across reloads
+    function applySavedIfAny(){
+      try{
+        const root = document.documentElement.style;
+        const def = localStorage.getItem('alliance-default-config');
+        if(def){
+          const obj = JSON.parse(def);
+          if(obj.styles){
+            Object.keys(obj.styles).forEach(k=>{
+              const name = k.startsWith('--') ? k : ('--'+k);
+              try{ root.setProperty(name, obj.styles[k]); }catch(e){}
+            });
+          }
+          if(obj.timeline && Array.isArray(obj.timeline)){
+            const rows = Array.from(document.querySelectorAll('.pricing-row'));
+            obj.timeline.forEach((it, i)=>{
+              const row = rows[i];
+              if(!row) return;
+              const titleEl = row.querySelector('h3'); if(titleEl) titleEl.textContent = it.event || it.title || titleEl.textContent;
+              const descEl = row.querySelector('p'); if(descEl) descEl.textContent = it.desc || it.description || descEl.textContent;
+              const priceEl = row.querySelector('.price'); if(priceEl) priceEl.textContent = it.price || priceEl.textContent;
+              const ctaEl = row.querySelector('.cta'); if(ctaEl) ctaEl.textContent = (it.cta || ctaEl.textContent);
+              const imgEl = row.querySelector('img'); if(imgEl && (it.imgSrc||it.image)) imgEl.src = it.imgSrc||it.image;
+            });
+            return; // applied default config
+          }
+        }
+
+        // fallback to simple editor saved snapshot
+        const snap = localStorage.getItem('simple_page_editor_v1');
+        if(snap){
+          const data = JSON.parse(snap);
+          if(data.colors){ Object.keys(data.colors).forEach(k=>{ try{ document.documentElement.style.setProperty(k, data.colors[k]); }catch(e){} }); }
+          if(data.items && Array.isArray(data.items)){
+            const rows = Array.from(document.querySelectorAll('.pricing-row'));
+            data.items.forEach((it,i)=>{
+              const row = rows[i]; if(!row) return;
+              const titleEl = row.querySelector('h3'); if(titleEl) titleEl.textContent = it.title || titleEl.textContent;
+              const descEl = row.querySelector('p'); if(descEl) descEl.textContent = it.description || descEl.textContent;
+              const priceEl = row.querySelector('.price'); if(priceEl) priceEl.textContent = it.price || priceEl.textContent;
+              const ctaEl = row.querySelector('.cta'); if(ctaEl) ctaEl.textContent = it.cta || ctaEl.textContent;
+              const imgEl = row.querySelector('img'); if(imgEl && it.image) imgEl.src = it.image;
+            });
+          }
+        }
+      }catch(e){ /* ignore errors */ }
+    }
 
     function scanItems(){
       const rows = Array.from(document.querySelectorAll('.pricing-row'));

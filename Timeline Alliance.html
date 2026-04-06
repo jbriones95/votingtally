@@ -411,3 +411,213 @@
 		</li>
 	</ol>
 </section>
+
+<!-- Timeline Editor Controls -->
+<div id="timeline-editor" style="max-width:900px;margin:18px auto;padding:12px 16px;border:1px dashed var(--timeline-line);border-radius:8px;background:#fff;">
+	<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+		<button id="toggle-edit">Enter Edit Mode</button>
+		<button id="add-event">Add Event</button>
+		<button id="save-local">Save (local)</button>
+		<button id="load-local">Load (local)</button>
+		<button id="export-json">Export JSON</button>
+		<button id="copy-json">Copy JSON</button>
+		<label style="display:inline-flex;align-items:center;gap:6px;">
+			Import JSON <input id="import-file" type="file" accept="application/json" style="display:inline-block;margin-left:6px;">
+		</label>
+		<button id="save-server">Save (server)</button>
+		<button id="set-default">Set As Default</button>
+		<span id="editor-status" style="margin-left:auto;color:var(--timeline-muted);font-size:13px"></span>
+	</div>
+</div>
+
+<script>
+(function(){
+	const list = document.querySelector('.alliance-timeline__list');
+	const toggle = document.getElementById('toggle-edit');
+	const addBtn = document.getElementById('add-event');
+	const saveLocal = document.getElementById('save-local');
+	const loadLocal = document.getElementById('load-local');
+	const exportJson = document.getElementById('export-json');
+	const importFile = document.getElementById('import-file');
+	const saveServer = document.getElementById('save-server');
+	const setDefaultBtn = document.getElementById('set-default');
+	const status = document.getElementById('editor-status');
+
+	let editMode = false;
+
+	function setStatus(msg){ status.textContent = msg; setTimeout(()=>{ if(status.textContent===msg) status.textContent = '' },3000); }
+
+	function toData(){
+		const items = [];
+		list.querySelectorAll('.alliance-timeline__item').forEach(li=>{
+			const img = li.querySelector('.alliance-timeline__image img');
+			const date = li.querySelector('.alliance-timeline__date');
+			const event = li.querySelector('.alliance-timeline__event');
+			const desc = li.querySelector('.alliance-timeline__desc');
+			items.push({
+				date: date ? date.innerHTML : '',
+				event: event ? event.innerHTML : '',
+				desc: desc ? desc.innerHTML : '',
+				imgSrc: img ? img.getAttribute('src') : '',
+				imgAlt: img ? img.getAttribute('alt') : ''
+			});
+		});
+		return items;
+	}
+
+	function renderFromData(items){
+		list.innerHTML = ''; // replace
+		items.forEach(it=>{
+			const li = document.createElement('li');
+			li.className = 'alliance-timeline__item';
+			li.innerHTML = `\n        <span class="alliance-timeline__dot" aria-hidden="true"></span>\n        <article class="alliance-timeline__card">\n          <div class="alliance-timeline__image">\n            ${it.imgSrc?`<img src="${it.imgSrc}" alt="${(it.imgAlt||'')}">`:'<div class="alliance-timeline__image-placeholder">No image</div>'}\n          </div>\n          ${it.date?`<p class="alliance-timeline__date">${it.date}</p>`:''}\n          ${it.event?`<h3 class="alliance-timeline__event">${it.event}</h3>`:''}\n          ${it.desc?`<p class="alliance-timeline__desc">${it.desc}</p>`:''}\n        </article>\n      `;
+			list.appendChild(li);
+		});
+		if(editMode) enableEditing();
+	}
+
+	function enableEditing(){
+		list.querySelectorAll('.alliance-timeline__item').forEach((li, idx)=>{
+			li.contentEditable = false; // don't make whole li editable
+			const date = li.querySelector('.alliance-timeline__date');
+			const event = li.querySelector('.alliance-timeline__event');
+			const desc = li.querySelector('.alliance-timeline__desc');
+			const imgWrap = li.querySelector('.alliance-timeline__image');
+
+			[date, event, desc].forEach(node=>{
+				if(node){ node.setAttribute('contenteditable','true'); node.classList.add('editing-field'); }
+			});
+
+			// add image src input
+			if(imgWrap){
+				let ctrl = li.querySelector('.image-src-input');
+				if(!ctrl){
+					ctrl = document.createElement('div');
+					ctrl.className = 'image-src-input';
+					ctrl.style.marginTop = '8px';
+					ctrl.innerHTML = `<input type="text" placeholder="Image URL" style="width:70%" class="img-url"> <input type="text" placeholder="Alt text" style="width:25%" class="img-alt"> <button class="img-set">Set</button>`;
+					imgWrap.appendChild(ctrl);
+					ctrl.querySelector('.img-set').addEventListener('click',()=>{
+						const url = ctrl.querySelector('.img-url').value.trim();
+						const alt = ctrl.querySelector('.img-alt').value.trim();
+						let img = imgWrap.querySelector('img');
+						if(!img && url){ img = document.createElement('img'); imgWrap.innerHTML = ''; imgWrap.appendChild(img); }
+						if(img){ if(url) img.setAttribute('src',url); img.setAttribute('alt',alt); }
+						setStatus('Image updated');
+					});
+				}
+			}
+
+			// add remove button
+			if(!li.querySelector('.remove-event')){
+				const rem = document.createElement('button');
+				rem.textContent = 'Remove';
+				rem.className = 'remove-event';
+				rem.style.marginTop = '8px';
+				rem.addEventListener('click',()=>{ li.remove(); setStatus('Event removed'); });
+				li.querySelector('.alliance-timeline__card').appendChild(rem);
+			}
+		});
+	}
+
+	function disableEditing(){
+		list.querySelectorAll('.alliance-timeline__item').forEach(li=>{
+			['.editing-field','.image-src-input','.remove-event'].forEach(sel=>{
+				const node = li.querySelector(sel);
+				if(node) node.remove();
+			});
+			li.querySelectorAll('[contenteditable]').forEach(n=>n.removeAttribute('contenteditable'));
+		});
+	}
+
+	toggle.addEventListener('click',()=>{
+		editMode = !editMode;
+		toggle.textContent = editMode ? 'Exit Edit Mode' : 'Enter Edit Mode';
+		if(editMode){ enableEditing(); setStatus('Edit mode enabled'); } else { disableEditing(); setStatus('Edit mode disabled'); }
+	});
+
+	addBtn.addEventListener('click',()=>{
+		const template = [{date:'Year',event:'Title',desc:'Description',imgSrc:'',imgAlt:''}];
+		renderFromData(toData().concat(template));
+		setStatus('New event added');
+	});
+
+	saveLocal.addEventListener('click',()=>{
+		const data = toData();
+		localStorage.setItem('alliance-timeline', JSON.stringify(data));
+		setStatus('Saved to localStorage');
+	});
+
+	loadLocal.addEventListener('click',()=>{
+		const raw = localStorage.getItem('alliance-timeline');
+		if(!raw){ setStatus('No local save found'); return; }
+		try{ const items = JSON.parse(raw); renderFromData(items); setStatus('Loaded from localStorage'); }
+		catch(e){ setStatus('Failed to load JSON'); }
+	});
+
+	exportJson.addEventListener('click',()=>{
+		const data = toData();
+		const blob = new Blob([JSON.stringify(data, null, 2)],{type:'application/json'});
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url; a.download = 'timeline.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+		setStatus('Exported JSON');
+	});
+
+	// Copy JSON to clipboard and set as default
+	const copyJsonBtn = document.getElementById('copy-json');
+	copyJsonBtn.addEventListener('click', async ()=>{
+		const data = toData();
+		const json = JSON.stringify(data, null, 2);
+		try{
+			await navigator.clipboard.writeText(json);
+			// also save as default config (styles + timeline)
+			const stylesList = ['timeline-bg','timeline-text','timeline-muted','timeline-accent','timeline-line','timeline-card'];
+			const computed = getComputedStyle(document.documentElement);
+			const styles = {};
+			stylesList.forEach(k => { styles[k] = computed.getPropertyValue('--' + k).trim() || ''; });
+			const payload = { styles, timeline: data, savedAt: new Date().toISOString() };
+			localStorage.setItem('alliance-default-config', JSON.stringify(payload));
+			setStatus('Copied JSON and set as default');
+		}catch(e){ setStatus('Copy failed'); }
+	});
+
+	importFile.addEventListener('change',(e)=>{
+		const f = e.target.files[0]; if(!f) return;
+		const reader = new FileReader();
+		reader.onload = ()=>{
+			try{ const items = JSON.parse(reader.result); renderFromData(items); setStatus('Imported JSON'); }
+			catch(err){ setStatus('Invalid JSON'); }
+		};
+		reader.readAsText(f);
+	});
+
+	saveServer.addEventListener('click',async()=>{
+		const data = toData();
+		try{
+			const res = await fetch('/save-timeline', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({timeline:data})});
+			if(res.ok) setStatus('Saved to server'); else setStatus('Server save failed');
+		}catch(e){ setStatus('Server save error'); }
+	});
+
+	// Save current timeline + styles as the default (stored in localStorage)
+	setDefaultBtn.addEventListener('click',()=>{
+		const stylesList = ['timeline-bg','timeline-text','timeline-muted','timeline-accent','timeline-line','timeline-card'];
+		const computed = getComputedStyle(document.documentElement);
+		const styles = {};
+		stylesList.forEach(k => { styles[k] = computed.getPropertyValue('--' + k).trim() || ''; });
+		const payload = { styles, timeline: toData(), savedAt: new Date().toISOString() };
+		try{
+			localStorage.setItem('alliance-default-config', JSON.stringify(payload));
+			setStatus('Set as default (local)');
+		}catch(e){ setStatus('Failed to set default'); }
+	});
+
+	// Auto-load if local present
+	if(localStorage.getItem('alliance-timeline')){
+		try{ renderFromData(JSON.parse(localStorage.getItem('alliance-timeline'))); }
+		catch(e){}
+	}
+})();
+</script>
+

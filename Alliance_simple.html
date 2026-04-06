@@ -24,9 +24,27 @@
 
   <script>
     async function load() {
+      const root = document.documentElement.style;
+      // Prefer a locally saved default config (set via the timeline editor) if present
+      try{
+        const stored = localStorage.getItem('alliance-default-config');
+        if(stored){
+          const obj = JSON.parse(stored);
+          if(obj.styles){
+            Object.keys(obj.styles).forEach(k => {
+              try { root.setProperty('--' + k, obj.styles[k]); } catch(e){}
+            });
+          }
+          // If stored timeline/sections exist, use them instead of the JSON file
+          if(obj.timeline && Array.isArray(obj.timeline)){
+            renderFromConfig({ sections: obj.timeline, colors: obj.styles });
+            return;
+          }
+        }
+      }catch(e){ /* ignore parsing errors and fall back to fetch */ }
+
       const res = await fetch('/site-configs/Alliance.json');
       const cfg = await res.json();
-      const root = document.documentElement.style;
       if (cfg.colors) {
         Object.keys(cfg.colors).forEach(k => {
           try { root.setProperty('--' + k.replace(/([A-Z])/g,'-$1').toLowerCase(), cfg.colors[k]); } catch(e){}
@@ -44,6 +62,24 @@
         list.appendChild(row);
       });
     }
+    
+      // helper to accept data in the same shape used by timeline editor (array of {date,event,desc,imgSrc,imgAlt})
+      function renderFromConfig(cfg){
+        const listEl = document.getElementById('list');
+        listEl.innerHTML = '';
+        // timeline editor stores items as timeline objects; map them to a simple display
+        (cfg.sections||cfg).forEach(s => {
+          const row = document.createElement('div'); row.className = 'pricing-row';
+          const left = document.createElement('div'); left.className='pricing-content';
+          const title = s.event || s.title || '';
+          const desc = s.desc || s.description || '';
+          left.innerHTML = `<h3>${title}</h3><p style="opacity:0.85">${desc}</p>`;
+          const imgWrap = document.createElement('div'); imgWrap.style.margin='0 12px'; imgWrap.innerHTML = `<img class="thumb" src="${s.imgSrc||s.image||''}" alt="${title}">`;
+          const right = document.createElement('div'); right.className='pricing-right'; right.innerHTML = `<div style="font-size:0.7rem;color:#bbb">&nbsp;</div><div class="price">${s.price||''}</div>`;
+          row.appendChild(left); row.appendChild(imgWrap); row.appendChild(right);
+          listEl.appendChild(row);
+        });
+      }
     load().catch(e=>{console.error(e);document.getElementById('list').textContent='Failed to load content.'});
   </script>
 </body>
